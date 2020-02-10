@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "ES5",
+      "outDir": "dist"
+    },
+    "include": [ 
+        "../src",
+        "../test/*.ts" 
+    ],
+    "exclude": [
+      "node_modules",
+      "samples",
+    ]
+  }
