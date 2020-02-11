@@ -4,6 +4,7 @@
 
 ### User ###
 dist/
+test/dist/
 
 ### Node ###
 # Logs
