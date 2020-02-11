@@ -13,8 +13,15 @@
     "markdown",
     "parser"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonnygreenwald/Fountain.ts.git"
+  },
   "author": "Jonny Greenwald",
-  "contributors": ["Matt Daly", "Jonny Greenwald"],
+  "contributors": [
+    "Matt Daly",
+    "Jonny Greenwald"
+  ],
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
