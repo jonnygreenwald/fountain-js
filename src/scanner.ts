@@ -21,7 +21,7 @@ export class Scanner {
             xlen: number, 
             dual: boolean;
 
-        let i: number = src.length;
+        let i = src.length;
 
         while (i--) {
             line = src[i];

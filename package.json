@@ -1,9 +1,10 @@
 {
   "name": "fountain.ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A Typescript based parser for the screenplay format Fountain. Source originally from Matt Daly's fountain.js",
-  "main": "dist/fountain.js",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc -p .",
     "test": "tsc -b test/ && mocha test/dist/test/*.js"
   },
   "keywords": [
@@ -13,11 +14,13 @@
     "parser"
   ],
   "author": "Jonny Greenwald",
+  "contributors": ["Matt Daly", "Jonny Greenwald"],
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "@types/assert": "^1.4.6",
     "@types/mocha": "^7.0.1",
-    "mocha": "^7.0.1"
+    "mocha": "^7.0.1",
+    "typescript": "^3.7.5"
   }
 }

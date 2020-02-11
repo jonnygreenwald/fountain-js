@@ -27,7 +27,7 @@ export class Fountain {
         this.tokens = new Scanner().tokenize(script);
 
         let token: Token,
-            i: number = this.tokens.length;
+            i = this.tokens.length;
 
         while (i--) {
             token = this.tokens[i];
