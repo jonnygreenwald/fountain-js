@@ -23,7 +23,7 @@ export class Fountain {
         this.html = [];
     }
 
-    public parser(script: string, getTokens?: boolean): Script {
+    public parse(script: string, getTokens?: boolean): Script {
         this.tokens = new Scanner().tokenize(script);
 
         let token: Token,
@@ -53,8 +53,8 @@ export class Fountain {
                 case 'character': this.html.push('<h4>' + token.text + '</h4>'); break;
                 case 'parenthetical': this.html.push('<p class=\"parenthetical\">' + token.text + '</p>'); break;
                 case 'dialogue': this.html.push('<p>' + token.text + '</p>'); break;
-                case 'dialogue_end': this.html.push('</div> '); break;
-                case 'dual_dialogue_end': this.html.push('</div> '); break;
+                case 'dialogue_end': this.html.push('</div>'); break;
+                case 'dual_dialogue_end': this.html.push('</div>'); break;
 
                 case 'section': this.html.push('<p class=\"section\" data-depth=\"' + token.depth + '\">' + token.text + '</p>'); break;
                 case 'synopsis': this.html.push('<p class=\"synopsis\">' + token.text + '</p>'); break;

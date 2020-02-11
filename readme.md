@@ -1,7 +1,7 @@
 Fountain-ts
 ===========
 
-fountain-ts is a TypeScript based parser for the screenplay format [Fountain](http://fountain.io/). Based on Matt Daly's [fountain-js](https://github.com/mattdaly/Fountain.js). 
+Fountain-ts is a TypeScript based parser for the screenplay format [Fountain](http://fountain.io/). Based on Matt Daly's [fountain-js](https://github.com/mattdaly/Fountain.js). 
 
 <!-- # Syntax Support
 
