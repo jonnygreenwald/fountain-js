@@ -3,15 +3,17 @@ Fountain-ts
 
 Fountain-ts is a TypeScript based parser for the screenplay format [Fountain](http://fountain.io/). Based on Matt Daly's [fountain-js](https://github.com/mattdaly/Fountain.js). 
 
-<!-- # Syntax Support
+A work in progress at version 0.0.1.
 
-As of version 0.1.8 the full Fountain syntax is supported.
+# Syntax Support
 
-Currently fountain-js supports a limited range of key-value pairs for title pages - 
+Supports most of the Fountain syntax.
+
+Currently fountain-ts supports a limited range of key-value pairs for title pages - 
 
 * Title, Credit, Author/s, Source, Notes, Draft date, Date, Contact, Copyright
 
-Work is being done to make title page parsing friendlier, allowing custom key-value pairs, but as of version 0.1.0 only the above are supported.
+<!-- Work is being done to make title page parsing friendlier, allowing custom key-value pairs, but as of version 0.1.0 only the above are supported.
 
 Instructions
 ============
