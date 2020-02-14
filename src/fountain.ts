@@ -14,12 +14,20 @@ export interface Script {
 
 export class Fountain {
     public tokens: Token[];
+    private scanner: Scanner;
+    private inlineLex: InlineLexer;
+
+    constructor () {
+        this.scanner = new Scanner;
+        this.inlineLex = new InlineLexer;
+    }
 
     public parse(script: string, getTokens?: boolean): Script {
-        this.tokens = new Scanner().tokenize(script).reverse();
+        this.tokens = this.scanner.tokenize(script).reverse();
+        let title = this.tokens.find(token => token.type == 'title');
 
         return { 
-            title: this.tokens.find(token => token.type == 'title').text.replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, ''), 
+            title: title ? this.inlineLex.reconstruct(title.text).replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
             html: { 
                 title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''), 
                 script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('') 
@@ -29,7 +37,7 @@ export class Fountain {
     }
 
     public to_html(token: Token): string {
-        token.text = new InlineLexer().reconstruct(token.text);
+        token.text = this.inlineLex.reconstruct(token.text);
 
         switch (token.type) {
             case 'title': return '<h1>' + token.text + '</h1>';
