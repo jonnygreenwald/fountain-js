@@ -32,7 +32,7 @@ export class Scanner {
 
                 for (x = 0, xlen = match.length; x < xlen; x++) {
                     parts = match[x].replace(regex.cleaner, '').split(/\:\n*/);
-                    this.tokens.push({ type: parts[0].trim().toLowerCase().replace(' ', '_'), text: parts[1].trim() });
+                    this.tokens.push({ type: parts[0].trim().toLowerCase().replace(' ', '_'), is_title: true, text: parts[1].trim() });
                 }
                 continue;
             }
