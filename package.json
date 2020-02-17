@@ -1,6 +1,6 @@
 {
   "name": "fountain.ts",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A Typescript based parser for the screenplay format Fountain. Source originally from Matt Daly's fountain.js",
   "main": "dist/index.js",
   "scripts": {
