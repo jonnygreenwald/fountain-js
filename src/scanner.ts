@@ -4,42 +4,33 @@ import { Token } from './token';
 import { Lexer } from './lexer';
 
 export class Scanner {
-    private tokens: Token[];
+    private tokens: Token[] = [];
 
-    constructor() {
-        this.tokens = [];
-    }
+    public tokenize(script: string): Token[] {
+        // reverse the array so that dual dialog can be constructed bottom up
+        const source: string[] = new Lexer().reconstruct(script).split(regex.splitter).reverse();
 
-    public tokenize(script: string) {
-        let src = new Lexer().reconstruct(script).split(regex.splitter), 
-            line: string, 
-            match: string[], 
-            parts: string[], 
-            text: string, 
-            meta: any, 
-            x: number, 
-            xlen: number, 
+        let line: string,
+            match: string[],
             dual: boolean;
 
-        let i = src.length;
-
-        while (i--) {
-            line = src[i];
-
+        for (line of source) {
             /** title page */
             if (regex.title_page.test(line)) {
                 match = line.replace(regex.title_page, '\n$1').split(regex.splitter).reverse();
 
-                for (x = 0, xlen = match.length; x < xlen; x++) {
-                    parts = match[x].replace(regex.cleaner, '').split(/\:\n*/);
-                    this.tokens.push({ type: parts[0].trim().toLowerCase().replace(' ', '_'), text: parts[1].trim() });
+                for (let item of match) {
+                    let pair = item.replace(regex.cleaner, '').split(/\:\n*/);
+
+                    this.tokens.push({ type: pair[0].trim().toLowerCase().replace(' ', '_'), is_title: true, text: pair[1].trim() });
                 }
                 continue;
             }
 
             /** scene headings */
             if (match = line.match(regex.scene_heading)) {
-                text = match[1] || match[2];
+                let text: string = match[1] || match[2],
+                    meta: any;
 
                 if (text.indexOf('  ') !== text.length - 2) {
                     if (meta = text.match(regex.scene_number)) {
@@ -67,20 +58,18 @@ export class Scanner {
             /** dialogue blocks - characters, parentheticals and dialogue */
             if (match = line.match(regex.dialogue)) {
                 if (match[1].indexOf('  ') !== match[1].length - 2) {
-                    // we're iterating from the bottom up, so we need to push these backwards
+                    // iterating from the bottom up, so push dialogue blocks in reverse order
                     if (match[2]) {
                         this.tokens.push({ type: 'dual_dialogue_end' });
                     }
 
                     this.tokens.push({ type: 'dialogue_end' });
 
-                    parts = match[3].split(/(\(.+\))(?:\n+)/).reverse();
+                    let parts: string[] = match[3].split(/(\(.+\))(?:\n+)/).reverse();
 
-                    for (x = 0, xlen = parts.length; x < xlen; x++) {	
-                        text = parts[x];
-
-                        if (text.length > 0) {
-                            this.tokens.push({ type: regex.parenthetical.test(text) ? 'parenthetical' : 'dialogue', text: text });
+                    for (let part of parts) {
+                        if (part.length > 0) {
+                            this.tokens.push({ type: regex.parenthetical.test(part) ? 'parenthetical' : 'dialogue', text: part });
                         }
                     }
 
@@ -92,7 +81,6 @@ export class Scanner {
                     }
 
                     dual = match[2] ? true : false;
-
                     continue;
                 }
             }
@@ -111,15 +99,15 @@ export class Scanner {
 
             /** notes */
             if (match = line.match(regex.note)) {
-                this.tokens.push({ type: 'note', text: match[1]});
+                this.tokens.push({ type: 'note', text: match[1] });
                 continue;
-            }      
+            }
 
-            /** boneyard */ 
+            /** boneyard */
             if (match = line.match(regex.boneyard)) {
                 this.tokens.push({ type: match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end' });
                 continue;
-            }      
+            }
 
             /** page breaks */
             if (regex.page_break.test(line)) {
@@ -136,6 +124,6 @@ export class Scanner {
             this.tokens.push({ type: 'action', text: line });
         }
 
-        return this.tokens;
+        return this.tokens.reverse();
     }
 }

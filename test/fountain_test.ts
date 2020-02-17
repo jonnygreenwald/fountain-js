@@ -1,12 +1,12 @@
 import * as assert from 'assert';
 import { Fountain, Script } from '../src/fountain';
 
-describe('Fountain Markup Parser', function () {
-    it('should exist', function () {
+describe('Fountain Markup Parser', () => {
+    it('should exist', () => {
         assert.notEqual(Fountain, undefined);
     });
 
-    it('should return tokens when true', function () {
+    it('should return tokens when true', () => {
         let action = "It was a cold and clear morning.";
 
         let actual: Script = new Fountain().parse(action, true);
@@ -25,7 +25,7 @@ describe('Fountain Markup Parser', function () {
         assert.deepEqual(actual, expected);
     });
 
-    it('should parse a title page', function () {
+    it('should parse a title page', () => {
         let title_page = `Title:
                             _**BRICK & STEEL**_
                             _**FULL RETIRED**_
@@ -51,7 +51,7 @@ describe('Fountain Markup Parser', function () {
         assert.deepEqual(actual, expected);
     });
 
-    it('should parse a scene heading', function () {
+    it('should parse a scene heading', () => {
         let sceneHeading = "EXT. BRICK'S PATIO - DAY";
         
         let actual: Script = new Fountain().parse(sceneHeading);
@@ -67,7 +67,7 @@ describe('Fountain Markup Parser', function () {
         assert.deepEqual(actual, expected);
     });
 
-    it('should parse some transitions, forced headings and centered text', function () {
+    it('should parse some transitions, forced headings and centered text', () => {
         let text = `.OPENING TITLES
 
                     > BRICK & STEEL <
@@ -83,7 +83,7 @@ describe('Fountain Markup Parser', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse dialog', function () {
+    it('should parse dialog', () => {
         let dialog = `STEEL (O.S.)
                     Beer's ready!
 
@@ -99,7 +99,7 @@ describe('Fountain Markup Parser', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse dual dialog', function () {
+    it('should parse dual dialog', () => {
         let dualDialog = `STEEL
                         Screw retirement.
 
@@ -113,10 +113,21 @@ describe('Fountain Markup Parser', function () {
         
         assert.equal(actual, expected);
     });
+
+    it('should parse notes', () => {
+        let notes = '[[Add an additional beat here]]';
+
+        let output: Script = new Fountain().parse(notes),
+            actual: string = output.html.script;
+
+        const expected = '<!-- Add an additional beat here -->';
+
+        assert.equal(actual, expected);
+    });
 });
 
-describe('Inline markdown lexer', function () {
-    it('should parse bold italics underline', function () {
+describe('Inline markdown lexer', () => {
+    it('should parse bold italics underline', () => {
         let inlineText = '_***bold italics underline***_',
             output: Script = new Fountain().parse(inlineText);
         
@@ -126,7 +137,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse bold underline', function () {
+    it('should parse bold underline', () => {
         let inlineText = '_**bold underline**_',
             output: Script = new Fountain().parse(inlineText);
         
@@ -136,7 +147,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse italic underline', function () {
+    it('should parse italic underline', () => {
         let inlineTextAlt1 = '_*italic underline*_',
             output: Script = new Fountain().parse(inlineTextAlt1);
         
@@ -146,7 +157,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse an alternative italic underline', function () {
+    it('should parse an alternative italic underline', () => {
         let inlineTextAlt2 = '*_italic underline_*',
             output: Script = new Fountain().parse(inlineTextAlt2);
         
@@ -156,7 +167,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse bold italics', function () {
+    it('should parse bold italics', () => {
         let inlineText = '***bold italics***',
             output: Script = new Fountain().parse(inlineText);
         
@@ -166,7 +177,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse bold', function () {
+    it('should parse bold', () => {
         let inlineText = '**bold**',
             output: Script = new Fountain().parse(inlineText);
         
@@ -176,7 +187,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse italic', function () {
+    it('should parse italic', () => {
         let inlineText = '*italics*',
             output: Script = new Fountain().parse(inlineText);
         
@@ -186,7 +197,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse underline', function () {
+    it('should parse underline', () => {
         let inlineText = '_underline_',
             output: Script = new Fountain().parse(inlineText);
         
@@ -196,7 +207,7 @@ describe('Inline markdown lexer', function () {
         assert.equal(actual, expected);
     });
 
-    it('should parse inline markdown', function () {
+    it('should parse inline markdown', () => {
         let inlineText = '_***bold italics underline***_ _**bold underline**_ _*italic underline*_ ***bold italics*** **bold** *italics* _underline_',
             output: Script = new Fountain().parse(inlineText);
 
