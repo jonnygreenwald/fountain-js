@@ -5,7 +5,7 @@ import { InlineLexer } from './lexer';
 
 export interface Script {
     title: string,
-    html: { 
+    html: {
         title_page: string,
         script: string
     },
@@ -13,25 +13,26 @@ export interface Script {
 }
 
 export class Fountain {
-    public tokens: Token[];
+    private tokens: Token[];
     private scanner: Scanner;
     private inlineLex: InlineLexer;
 
-    constructor () {
+    constructor() {
         this.scanner = new Scanner;
         this.inlineLex = new InlineLexer;
     }
 
     public parse(script: string, getTokens?: boolean): Script {
-        this.tokens = this.scanner.tokenize(script).reverse();
-        let title = this.tokens.find(token => token.type == 'title');
+        this.tokens = this.scanner.tokenize(script);
+        let title = this.tokens.find(token => token.type === 'title');
 
-        return { 
-            title: title ? this.inlineLex.reconstruct(title.text).replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
-            html: { 
-                title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''), 
-                script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('') 
-            }, 
+        return {
+            title: title ? this.inlineLex.reconstruct(title.text)
+                    .replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
+            html: {
+                title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
+                script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
+            },
             tokens: getTokens ? this.tokens : undefined
         }
     }
@@ -65,13 +66,13 @@ export class Fountain {
             case 'section': return '<p class=\"section\" data-depth=\"' + token.depth + '\">' + token.text + '</p>';
             case 'synopsis': return '<p class=\"synopsis\">' + token.text + '</p>';
 
-            case 'note': return '<!-- ' + token.text + '-->';
+            case 'note': return '<!-- ' + token.text + ' -->';
             case 'boneyard_begin': return '<!-- ';
             case 'boneyard_end': return ' -->';
 
             case 'action': return '<p>' + token.text + '</p>';
             case 'centered': return '<p class=\"centered\">' + token.text + '</p>';
-            
+
             case 'page_break': return '<hr />';
             case 'line_break': return '<br />';
         }

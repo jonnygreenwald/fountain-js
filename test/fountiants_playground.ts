@@ -1,5 +1,6 @@
 import { Fountain, Script } from '../src/fountain';
 import { Scanner } from '../src/scanner';
+import { InlineLexer } from '../src/lexer';
 
 let text = `Title:
             _**BRICK & STEEL**_
@@ -24,8 +25,10 @@ let text = `Title:
             (skeptical)
             Are they cold?`;
 
-//let tokens = new Scanner().tokenize(dialog);
+let line = "_**BRICK & STEEL**_\n_*FULL RETIRED*_\n\\*123\\_\n[[a note]]"
+//let tokens = new Scanner().tokenize(text);
 let output = new Fountain().parse(text);
+//let output = new InlineLexer().reconstruct(line);
 
 console.log(output);
 

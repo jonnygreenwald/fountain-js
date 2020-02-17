@@ -12,9 +12,9 @@ export class Lexer {
 export class InlineLexer extends Lexer {
     private inline = {
         note: '<!-- $1 -->',
-    
+
         line_break: '<br />',
-    
+
         bold_italic_underline: '<span class=\"bold italic underline\">$2</span>',
         bold_underline: '<span class=\"bold underline\">$2</span>',
         italic_underline: '<span class=\"italic underline\">$2</span>',
@@ -24,27 +24,22 @@ export class InlineLexer extends Lexer {
         underline: '<span class=\"underline\">$2</span>'
     };
 
-    public reconstruct(text: string): string {
-        if (!text) {
-            return;
-        }  
+    public reconstruct(line: string): string {
+        if (!line) return;
 
-        const styles = [ 'underline', 'italic', 'bold', 'bold_italic', 'italic_underline', 'bold_underline', 'bold_italic_underline' ];
-        let i: number = styles.length;
+        let match: RegExp;
+        const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
-        let style, match;
-        
-        text = text.replace(regex.note_inline, this.inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, this.inline.line_break);
+        line = line.replace(regex.note_inline, this.inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, this.inline.line_break);
 
-        while (i--) {
-            style = styles[i];
+        for (let style of styles) {
             match = regex[style];
 
-            if (match.test(text)) {
-                text = text.replace(match, this.inline[style]);
+            if (match.test(line)) {
+                line = line.replace(match, this.inline[style]);
             }
         }
 
-        return text.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_').trim();
+        return line.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_').trim();
     }
 }
