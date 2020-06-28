@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p .",
-    "test": "tsc -b test/ && mocha test/dist/test/*.js",
-    "playground": "tsc -b test/ && node test/dist/test/fountiants_playground.js"
+    "test": "tsc -b test/ && mocha test/dist/test/*.js"
   },
   "keywords": [
     "Typescript",
