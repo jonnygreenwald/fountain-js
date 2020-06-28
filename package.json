@@ -26,9 +26,9 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@types/assert": "^1.4.6",
-    "@types/mocha": "^7.0.1",
-    "mocha": "^7.0.1",
-    "typescript": "^3.7.5"
+    "@types/assert": "^1.5.1",
+    "@types/mocha": "^7.0.2",
+    "mocha": "^7.2.0",
+    "typescript": "^3.9.5"
   }
 }
