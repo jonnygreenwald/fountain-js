@@ -3,7 +3,7 @@ import { Fountain, Script } from '../src/fountain';
 
 describe('Fountain Markup Parser', () => {
     it('should exist', () => {
-        assert.notEqual(Fountain, undefined);
+        assert.notStrictEqual(Fountain, undefined);
     });
 
     it('should return tokens when true', () => {
@@ -22,7 +22,7 @@ describe('Fountain Markup Parser', () => {
             }]
         };
 
-        assert.deepEqual(actual, expected);
+        assert.deepStrictEqual(actual, expected);
     });
 
     it('should parse a title page', () => {
@@ -48,7 +48,7 @@ describe('Fountain Markup Parser', () => {
             tokens: undefined
         };
 
-        assert.deepEqual(actual, expected);
+        assert.deepStrictEqual(actual, expected);
     });
 
     it('should parse a scene heading', () => {
@@ -64,7 +64,7 @@ describe('Fountain Markup Parser', () => {
             tokens: undefined  
         };
         
-        assert.deepEqual(actual, expected);
+        assert.deepStrictEqual(actual, expected);
     });
 
     it('should parse some transitions, forced headings and centered text', () => {
@@ -80,7 +80,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse dialog', () => {
@@ -96,7 +96,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dialogue"><h4>STEEL (O.S.)</h4><p>Beer\'s ready!</p></div><div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(skeptical)</p><p>Are they cold?</p></div>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse dual dialog', () => {
@@ -111,7 +111,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dual-dialogue"><div class="dialogue left"><h4>STEEL</h4><p>Screw retirement.</p></div><div class="dialogue right"><h4>BRICK</h4><p>Screw retirement.</p></div></div>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse notes', () => {
@@ -122,7 +122,7 @@ describe('Fountain Markup Parser', () => {
 
         const expected = '<!-- Add an additional beat here -->';
 
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 });
 
@@ -134,7 +134,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"bold italic underline\">bold italics underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse bold underline', () => {
@@ -144,7 +144,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"bold underline\">bold underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse italic underline', () => {
@@ -154,7 +154,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"italic underline\">italic underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse an alternative italic underline', () => {
@@ -164,7 +164,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"italic underline\">italic underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse bold italics', () => {
@@ -174,7 +174,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"bold italic\">bold italics</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse bold', () => {
@@ -184,7 +184,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"bold\">bold</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse italic', () => {
@@ -194,7 +194,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"italic\">italics</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse underline', () => {
@@ -204,7 +204,7 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"underline\">underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 
     it('should parse inline markdown', () => {
@@ -214,6 +214,6 @@ describe('Inline markdown lexer', () => {
         let actual: string = output.html.script,
             expected = '<p><span class=\"bold italic underline\">bold italics underline</span> <span class=\"bold underline\">bold underline</span> <span class=\"italic underline\">italic underline</span> <span class=\"bold italic\">bold italics</span> <span class=\"bold\">bold</span> <span class=\"italic\">italics</span> <span class=\"underline\">underline</span></p>';
         
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
     });
 });
