@@ -1,7 +1,7 @@
 import { regex } from './regex';
 
 export class Lexer {
-    public reconstruct(script: string): string {
+    reconstruct(script: string) {
         return script.replace(regex.boneyard, '\n$1\n')
             .replace(regex.standardizer, '\n')
             .replace(regex.cleaner, '')
@@ -15,22 +15,26 @@ export class InlineLexer extends Lexer {
 
         line_break: '<br />',
 
-        bold_italic_underline: '<span class=\"bold italic underline\">$2</span>',
-        bold_underline: '<span class=\"bold underline\">$2</span>',
-        italic_underline: '<span class=\"italic underline\">$2</span>',
-        bold_italic: '<span class=\"bold italic\">$2</span>',
-        bold: '<span class=\"bold\">$2</span>',
-        italic: '<span class=\"italic\">$2</span>',
-        underline: '<span class=\"underline\">$2</span>'
+        bold_italic_underline: '<span class="bold italic underline">$2</span>',
+        bold_underline: '<span class="bold underline">$2</span>',
+        italic_underline: '<span class="italic underline">$2</span>',
+        bold_italic: '<span class="bold italic">$2</span>',
+        bold: '<span class="bold">$2</span>',
+        italic: '<span class="italic">$2</span>',
+        underline: '<span class="underline">$2</span>'
     };
 
-    public reconstruct(line: string): string {
-        if (!line) return;
+    reconstruct(line: string) {
+        if (!line) 
+            return;
 
         let match: RegExp;
         const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
-        line = line.replace(regex.note_inline, this.inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, this.inline.line_break);
+        line = line.replace(regex.note_inline, this.inline.note)
+            .replace(/\\\*/g, '[star]')
+            .replace(/\\_/g, '[underline]')
+            .replace(/\n/g, this.inline.line_break);
 
         for (let style of styles) {
             match = regex[style];
