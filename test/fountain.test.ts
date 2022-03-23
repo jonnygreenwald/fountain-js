@@ -1,15 +1,22 @@
 import * as assert from 'assert';
 import { Fountain, Script } from '../src/fountain';
+import { Token } from '../src/token';
 
 describe('Fountain Markup Parser', () => {
     it('should exist', () => {
         assert.notStrictEqual(Fountain, undefined);
     });
 
-    it('should return tokens when true', () => {
-        let action = "It was a cold and clear morning.";
+    let fountain: Fountain;
 
-        let actual: Script = new Fountain().parse(action, true);
+    beforeEach(() => {
+        fountain = new Fountain();
+    });
+
+    it('should return tokens when true', () => {
+        const action = "It was a cold and clear morning.";
+
+        let actual: Script = fountain.parse(action, true);
         let expected: Script = {
             title: undefined,
             html: {
@@ -25,8 +32,33 @@ describe('Fountain Markup Parser', () => {
         assert.deepStrictEqual(actual, expected);
     });
 
+    it('should parse forced action', () => {
+        const action = '!William enters -- and there stands Anna.';
+
+        let actual: Token[] = fountain.parse(action, true).tokens;
+        let expected: Token[] = [{
+                type: 'action',
+                text: 'William enters -- and there stands Anna.'
+        }];
+
+        assert.deepStrictEqual(actual, expected);
+    });
+
+    it('should parse multiple lines of forced action', () => {
+        const action = `!TIRES SCREECHING...
+                    Joe is looking at his phone for the direction.`;
+
+        let actual: Token[] = fountain.parse(action, true).tokens;
+        let expected: Token[] = [{
+                type: 'action',
+                text: 'TIRES SCREECHING...<br />Joe is looking at his phone for the direction.'
+        }];
+
+        assert.deepStrictEqual(actual, expected);
+    });
+
     it('should parse a title page', () => {
-        let title_page = `Title:
+        const title_page = `Title:
                             _**BRICK & STEEL**_
                             _**FULL RETIRED**_
                         Credit: Written by
@@ -38,7 +70,7 @@ describe('Fountain Markup Parser', () => {
                             1588 Mission Dr.
                             Solvang, CA 93463`;
         
-        let actual: Script = new Fountain().parse(title_page);
+        let actual: Script = fountain.parse(title_page);
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
             html: {
@@ -52,9 +84,9 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse a scene heading', () => {
-        let sceneHeading = "EXT. BRICK'S PATIO - DAY";
-        
-        let actual: Script = new Fountain().parse(sceneHeading);
+        const sceneHeading = "EXT. BRICK'S PATIO - DAY";
+
+        let actual: Script = fountain.parse(sceneHeading);
         let expected: Script = { 
             title: undefined, 
             html: { 
@@ -68,152 +100,182 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse some transitions, forced headings and centered text', () => {
-        let text = `.OPENING TITLES
+        const text = `.OPENING TITLES
 
                     > BRICK & STEEL <
                     > FULL RETIRED <
 
                     SMASH CUT TO:`;
-        
-        let output: Script = new Fountain().parse(text),
-            actual: string = output.html.script;
+
+        let output: Script = fountain.parse(text);
+        let actual = output.html.script;
 
         let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
-        
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse dialog', () => {
-        let dialog = `STEEL (O.S.)
+        const dialog = `STEEL (O.S.)
                     Beer's ready!
 
                     BRICK
                     (skeptical)
                     Are they cold?`;
-        
-        let output: Script = new Fountain().parse(dialog),
-            actual: string = output.html.script;
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
 
         let expected = '<div class="dialogue"><h4>STEEL (O.S.)</h4><p>Beer\'s ready!</p></div><div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(skeptical)</p><p>Are they cold?</p></div>';
-        
+
+        assert.strictEqual(actual, expected);
+    });
+
+    it('should parse forced dialog', () => {
+        const dialog = `@McCLANE
+                    Yippie ki-yay! I got my lower-case C back!`;
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>McCLANE</h4><p>Yippie ki-yay! I got my lower-case C back!</p></div>'
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse dual dialog', () => {
-        let dualDialog = `STEEL
+        const dualDialog = `STEEL
                         Screw retirement.
 
                         BRICK ^
                         Screw retirement.`;
-        
-        let output: Script = new Fountain().parse(dualDialog),
-            actual: string = output.html.script;
+
+        let output: Script = fountain.parse(dualDialog);
+        let actual = output.html.script;
 
         let expected = '<div class="dual-dialogue"><div class="dialogue left"><h4>STEEL</h4><p>Screw retirement.</p></div><div class="dialogue right"><h4>BRICK</h4><p>Screw retirement.</p></div></div>';
-        
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse notes', () => {
-        let notes = '[[Add an additional beat here]]';
+        const notes = '[[Add an additional beat here]]';
 
-        let output: Script = new Fountain().parse(notes),
-            actual: string = output.html.script;
+        let output: Script = fountain.parse(notes);
+        let actual = output.html.script;
 
         const expected = '<!-- Add an additional beat here -->';
+
+        assert.strictEqual(actual, expected);
+    });
+
+    it('should parse lyrics', () => {
+        const lyrics = `~Willy Wonka! Willy Wonka! The amazing chocolatier!
+                        ~Willy Wonka! Willy Wonka! Everybody give a cheer!`;
+
+        let output: Script = fountain.parse(lyrics);
+        let actual = output.html.script;
+
+        const expected = '<p class="lyrics">Willy Wonka! Willy Wonka! The amazing chocolatier!<br />Willy Wonka! Willy Wonka! Everybody give a cheer!</p>';
 
         assert.strictEqual(actual, expected);
     });
 });
 
 describe('Inline markdown lexer', () => {
+    let fountain: Fountain;
+
+    beforeEach(() => {
+        fountain = new Fountain();
+    });
+
     it('should parse bold italics underline', () => {
-        let inlineText = '_***bold italics underline***_',
-            output: Script = new Fountain().parse(inlineText);
+        const inlineText = '_***bold italics underline***_';
+        let output: Script = fountain.parse(inlineText);
         
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"bold italic underline\">bold italics underline</span></p>';
-        
+        let actual = output.html.script;
+        let expected = '<p><span class=\"bold italic underline\">bold italics underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse bold underline', () => {
-        let inlineText = '_**bold underline**_',
-            output: Script = new Fountain().parse(inlineText);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"bold underline\">bold underline</span></p>';
-        
+        const inlineText = '_**bold underline**_';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"bold underline\">bold underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse italic underline', () => {
-        let inlineTextAlt1 = '_*italic underline*_',
-            output: Script = new Fountain().parse(inlineTextAlt1);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"italic underline\">italic underline</span></p>';
-        
+        const inlineText = '_*italic underline*_';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse an alternative italic underline', () => {
-        let inlineTextAlt2 = '*_italic underline_*',
-            output: Script = new Fountain().parse(inlineTextAlt2);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"italic underline\">italic underline</span></p>';
-        
+        const inlineText = '*_italic underline_*';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse bold italics', () => {
-        let inlineText = '***bold italics***',
-            output: Script = new Fountain().parse(inlineText);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"bold italic\">bold italics</span></p>';
-        
+        const inlineText = '***bold italics***';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"bold italic\">bold italics</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse bold', () => {
-        let inlineText = '**bold**',
-            output: Script = new Fountain().parse(inlineText);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"bold\">bold</span></p>';
-        
+        const inlineText = '**bold**';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"bold\">bold</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse italic', () => {
-        let inlineText = '*italics*',
-            output: Script = new Fountain().parse(inlineText);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"italic\">italics</span></p>';
-        
+        const inlineText = '*italics*';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"italic\">italics</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse underline', () => {
-        let inlineText = '_underline_',
-            output: Script = new Fountain().parse(inlineText);
-        
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"underline\">underline</span></p>';
-        
+        const inlineText = '_underline_';
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p><span class=\"underline\">underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 
     it('should parse inline markdown', () => {
-        let inlineText = '_***bold italics underline***_ _**bold underline**_ _*italic underline*_ ***bold italics*** **bold** *italics* _underline_',
-            output: Script = new Fountain().parse(inlineText);
+        const inlineText = '_***bold italics underline***_ _**bold underline**_ _*italic underline*_ ***bold italics*** **bold** *italics* _underline_';
+        let output: Script = fountain.parse(inlineText);
 
-        let actual: string = output.html.script,
-            expected = '<p><span class=\"bold italic underline\">bold italics underline</span> <span class=\"bold underline\">bold underline</span> <span class=\"italic underline\">italic underline</span> <span class=\"bold italic\">bold italics</span> <span class=\"bold\">bold</span> <span class=\"italic\">italics</span> <span class=\"underline\">underline</span></p>';
-        
+        let actual = output.html.script;
+        let expected = '<p><span class=\"bold italic underline\">bold italics underline</span> <span class=\"bold underline\">bold underline</span> <span class=\"italic underline\">italic underline</span> <span class=\"bold italic\">bold italics</span> <span class=\"bold\">bold</span> <span class=\"italic\">italics</span> <span class=\"underline\">underline</span></p>';
+
         assert.strictEqual(actual, expected);
     });
 });

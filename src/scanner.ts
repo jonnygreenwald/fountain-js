@@ -6,13 +6,13 @@ import { Lexer } from './lexer';
 export class Scanner {
     private tokens: Token[] = [];
 
-    public tokenize(script: string): Token[] {
+    tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
         const source: string[] = new Lexer().reconstruct(script).split(regex.splitter).reverse();
 
-        let line: string,
-            match: string[],
-            dual: boolean;
+        let line: string;
+        let match: string[];
+        let dual: boolean;
 
         for (line of source) {
             /** title page */
@@ -29,16 +29,17 @@ export class Scanner {
 
             /** scene headings */
             if (match = line.match(regex.scene_heading)) {
-                let text: string = match[1] || match[2],
-                    meta: any;
+                let text = match[1] || match[2];
+                let meta: RegExpMatchArray;
+                let num: string;
 
                 if (text.indexOf('  ') !== text.length - 2) {
                     if (meta = text.match(regex.scene_number)) {
-                        meta = meta[2];
+                        num = meta[2];
                         text = text.replace(regex.scene_number, '');
                     }
 
-                    this.tokens.push({ type: 'scene_heading', text: text, scene_number: meta || undefined });
+                    this.tokens.push({ type: 'scene_heading', text: text, scene_number: num || undefined });
                 }
                 continue;
             }
@@ -57,15 +58,17 @@ export class Scanner {
 
             /** dialogue blocks - characters, parentheticals and dialogue */
             if (match = line.match(regex.dialogue)) {
-                if (match[1].indexOf('  ') !== match[1].length - 2) {
+                let name = match[1] || match[2];
+
+                if (name.indexOf('  ') !== name.length - 2) {
                     // iterating from the bottom up, so push dialogue blocks in reverse order
-                    if (match[2]) {
+                    if (match[3]) {
                         this.tokens.push({ type: 'dual_dialogue_end' });
                     }
 
                     this.tokens.push({ type: 'dialogue_end' });
 
-                    let parts: string[] = match[3].split(/(\(.+\))(?:\n+)/).reverse();
+                    let parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
 
                     for (let part of parts) {
                         if (part.length > 0) {
@@ -73,14 +76,14 @@ export class Scanner {
                         }
                     }
 
-                    this.tokens.push({ type: 'character', text: match[1].trim() });
-                    this.tokens.push({ type: 'dialogue_begin', dual: match[2] ? 'right' : dual ? 'left' : undefined });
+                    this.tokens.push({ type: 'character', text: name.trim() });
+                    this.tokens.push({ type: 'dialogue_begin', dual: match[3] ? 'right' : dual ? 'left' : undefined });
 
                     if (dual) {
                         this.tokens.push({ type: 'dual_dialogue_begin' });
                     }
 
-                    dual = match[2] ? true : false;
+                    dual = match[3] ? true : false;
                     continue;
                 }
             }
@@ -109,6 +112,12 @@ export class Scanner {
                 continue;
             }
 
+            /** lyrics */
+            if (match = line.match(regex.lyrics)) {
+                this.tokens.push({ type: 'lyrics', text: match[0].replace(/^~(?![ ])/gm, '') });
+                continue;
+            }
+
             /** page breaks */
             if (regex.page_break.test(line)) {
                 this.tokens.push({ type: 'page_break' });
@@ -121,7 +130,8 @@ export class Scanner {
                 continue;
             }
 
-            this.tokens.push({ type: 'action', text: line });
+            // everything else is action -- remove `!` for forced action
+            this.tokens.push({ type: 'action', text: line.replace(/^!(?![ ])/gm, '') });
         }
 
         return this.tokens.reverse();
