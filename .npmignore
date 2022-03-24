@@ -2,3 +2,4 @@ src/
 test/
 samples/
 node_modules/
+tsconfig*
