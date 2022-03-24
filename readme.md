@@ -15,18 +15,18 @@ Currently Fountain-ts supports a limited range of key-value pairs for title page
 Fountain-ts behaves as Fountain-js does. Import `Fountain` and create a new instance of it.
 
 ``` Typescript
-import { Fountain } from 'fountain';
+import { Fountain } from 'fountain.ts';
 ```
 
-The output provided by Fountain-ts is an object literal of the format `{ title: '...', html: { title_page: '...', script: '...' } }`.
+The output provided by Fountain-ts is an object literal, a `Script` interface, of the format: `{ title: '...', html: { title_page: '...', script: '...' } }`.
 
 An example.
 
 ``` Typescript
-import { Fountain, Script } from 'fountain';
+import { Fountain, Script } from 'fountain.ts';
 import * as assert from 'assert';
 
-let text = `.OPENING TITLES
+const text = `.OPENING TITLES
 
             > BRICK & STEEL <
             > FULL RETIRED <
@@ -35,8 +35,8 @@ let text = `.OPENING TITLES
         
 let fountain = new Fountain();
 
-let output: Script = fountain.parse(text),
-    actual: string = output.html.script;
+let output: Script = fountain.parse(text);
+let actual = output.html.script;
 
 const expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
@@ -87,4 +87,6 @@ The tokens for the Brick & Steel sample found on the [Fountain website](http://f
 ]
 ```
 
-Just like fountain-js, Fountain-ts attaches some extra tokens, such as 'dialogue_begin' and 'dialogue_end'. These are used to block together sections, in the case of dialogue it allows Fountain-ts to attach a dual dialogue property to blocks of dialogue.
+Just like Fountain-js, Fountain-ts attaches some extra tokens, such as `'dialogue_begin'` and `'dialogue_end'`. These are used to block together sections.
+
+In the case of dual dialogue, it allows Fountain-ts to attach a `dual` property to blocks of dialogue.
