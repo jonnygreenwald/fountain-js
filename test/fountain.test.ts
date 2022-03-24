@@ -158,6 +158,21 @@ describe('Fountain Markup Parser', () => {
         assert.strictEqual(actual, expected);
     });
 
+    it('should parse character extensions regardless of case', () => {
+        const dialog = `MOM (O. S.)
+                    Luke! Come down for supper!
+
+                        HANS (on the radio)
+                    What was it you said?`;
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>MOM (O. S.)</h4><p>Luke! Come down for supper!</p></div><div class="dialogue"><h4>HANS (on the radio)</h4><p>What was it you said?</p></div>';
+
+        assert.strictEqual(actual, expected);
+    });
+
     it('should parse notes', () => {
         const notes = '[[Add an additional beat here]]';
 
