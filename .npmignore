@@ -1,5 +1,5 @@
 src/
-test/
+spec/
 samples/
 node_modules/
 tsconfig*
