@@ -23,17 +23,31 @@ export class Fountain {
     }
 
     parse(script: string, getTokens?: boolean): Script {
-        this.tokens = this.scanner.tokenize(script);
-        let title = this.tokens.find(token => token.type === 'title');
+        // throw an error if given script source isn't a string
+        if (typeof script === 'undefined' || script === null)
+            throw new Error("Script is undefined or null.");
+        if (typeof script !== 'string')
+            throw new Error(
+                `Script should be \`string\`, input was \`${Object.prototype.toString.call(script)}\`.`
+            );
 
-        return {
-            title: title ? this.inlineLex.reconstruct(title.text)
-                    .replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
-            html: {
-                title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
-                script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
-            },
-            tokens: getTokens ? this.tokens : undefined
+        try {
+            this.tokens = this.scanner.tokenize(script);
+            let title = this.tokens.find(token => token.type === 'title');
+
+            return {
+                title: title ? this.inlineLex.reconstruct(title.text)
+                        .replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
+                html: {
+                    title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
+                    script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
+                },
+                tokens: getTokens ? this.tokens : undefined
+            }
+        } catch (error) {
+            error.message +=
+                '\nPlease submit an issue to https://github.com/jonnygreenwald/fountain-js/issues';
+            throw error;
         }
     }
 
