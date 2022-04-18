@@ -1,7 +1,7 @@
 {
-  "name": "fountain.ts",
-  "version": "1.0.2",
-  "description": "A Typescript based parser for the screenplay format Fountain. Source originally from Matt Daly's fountain.js",
+  "name": "fountain-js",
+  "version": "1.0.0",
+  "description": "A simple parser for Fountain, a markup languange for formatting screenplays.",
   "main": "dist/index.js",
   "module": "dist.esm/index.js",
   "scripts": {
@@ -13,22 +13,27 @@
   },
   "keywords": [
     "Typescript",
+    "Javascript",
     "Fountain",
     "markdown",
-    "parser"
+    "parser",
+    "screenwriting",
+    "screenplays",
+    "filmmaking"
   ],
-  "homepage": "https://github.com/jonnygreenwald/Fountain.ts#readme",
+  "homepage": "https://github.com/jonnygreenwald/fountain-jss#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonnygreenwald/Fountain.ts.git"
+    "url": "git+https://github.com/jonnygreenwald/fountain-js.git"
   },
   "bugs": {
-    "url": "https://github.com/jonnygreenwald/Fountain.ts/issues"
+    "url": "https://github.com/jonnygreenwald/fountain-js/issues"
   },
   "author": "Jonny Greenwald",
   "contributors": [
     "Matt Daly",
-    "Jonny Greenwald"
+    "Jonny Greenwald",
+    "Nathan Hoad"
   ],
   "license": "MIT",
   "devDependencies": {

@@ -1,31 +1,15 @@
 # Change Log
 
-All notable changes to Fountain-ts will be documented in this file.
+All notable changes to Fountain-js will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
 
-## [1.0.2] - 2022-04-18
-### Deprecated
-- The package known as `fountain.ts` is being deprecated in favor of `fountain-js`. Please visit the [fountain-js NPM package](https://www.npmjs.com/package/fountain-js) for latest versions for this codebase.
-
-## [1.0.0] - 2022-03-23
-### Added
-- A Character element can by forced by preceding it by an "at" symbol `@`.
-- An Action element can by forced by preceding it by an exclamation point `!`.
-- Lyrics are designated by a preceding tilde `~` on each line.
+## [1.0.0] - 2022-04-18
 
 ### Changed
-- "Character Extensions"--the parenthetical notations that follow a character name on the same line--are no longer required to be uppercase.
+- Updated package and repository name to `fountain-js`.
 
-## [0.1.3] - 2022-03-20
-### Added
-- Added ESM support in the build step.
-
-## [0.1.1] - 2020-06-28
-### Fixed
-- Updated npm packages to remove vulnerabilities.
-
-## [0.1.0] - 2020-02-17
-- Initial release.
+### Deprecated
+- `Fountain.ts` namepsace is now deprecated in favor of `fountain-js`
