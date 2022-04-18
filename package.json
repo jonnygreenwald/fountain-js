@@ -1,7 +1,7 @@
 {
   "name": "fountain-js",
   "version": "1.0.0",
-  "description": "A simple parser for Fountain, a markup languange for formatting screenplays.",
+  "description": "A simple parser for Fountain, a markup language for formatting screenplays.",
   "main": "dist/index.js",
   "module": "dist.esm/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "screenplays",
     "filmmaking"
   ],
-  "homepage": "https://github.com/jonnygreenwald/fountain-jss#readme",
+  "homepage": "https://github.com/jonnygreenwald/fountain-js#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jonnygreenwald/fountain-js.git"
