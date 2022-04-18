@@ -2,4 +2,5 @@ src/
 spec/
 samples/
 node_modules/
+jasmine.json
 tsconfig*
