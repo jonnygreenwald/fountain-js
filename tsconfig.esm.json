@@ -6,7 +6,6 @@
     "outDir": "./dist.esm"
   },
   "include": [
-    "./src/**/*.ts", 
-    "./spec/**/*.spec.ts"
+    "./src/**/*.ts"
   ]
 }

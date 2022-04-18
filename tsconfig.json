@@ -8,11 +8,11 @@
     "sourceMap": true
   },
   "include": [
-    "./src/**/*.ts", 
-    "./spec/**/*.spec.ts"
+    "./src/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "samples"
+    "./node_modules",
+    "./samples",
+    "./spec"
   ]
 }
