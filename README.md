@@ -55,7 +55,7 @@ assert.equal(actual, expected);
 
 ### Output
 
-The output provided by Fountain-js is an object literal in the format: `{ title: '...', html: { title_page: '...', script: '...' } }`.
+The output provided by Fountain-js is an object literal in the format `{ title: '...', html: { title_page: '...', script: '...' } }`.
 
 Fountain-js is natively written in Typescript, therefore a `Script` interface is also available:
 
