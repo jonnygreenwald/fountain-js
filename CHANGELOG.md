@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.2] - 2022-04-18
+### Deprecated
+- The package known as `fountain.ts` is being deprecated in favor of `fountain-js`. Please visit the [fountain-js NPM package](https://www.npmjs.com/package/fountain-js) for latest versions for this codebase.
+
 ## [1.0.0] - 2022-03-23
 ### Added
 - A Character element can by forced by preceding it by an "at" symbol `@`.
