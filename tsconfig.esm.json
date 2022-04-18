@@ -1,10 +1,12 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "target": "ES2017",
-        "module": "ES2020",
-        "rootDir": "./src",
-        "outDir": "./dist.esm"
-    },
-    "include": [ "./src/**/*.ts" ]
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ES2020",
+    "outDir": "./dist.esm"
+  },
+  "include": [
+    "./src/**/*.ts", 
+    "./spec/**/*.spec.ts"
+  ]
 }
