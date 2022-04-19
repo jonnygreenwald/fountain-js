@@ -50,7 +50,7 @@ let actual = output.html.script;
 
 const expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
-assert.equal(actual, expected);
+assert.strictEqual(actual, expected);
 ```
 
 ### Output
