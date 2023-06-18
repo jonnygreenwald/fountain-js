@@ -60,7 +60,7 @@ export class Scanner {
             if (match = line.match(regex.dialogue)) {
                 let name = match[1] || match[2];
 
-                if (name.indexOf('  ') !== name.length - 2) {
+                if (name.indexOf('  ') !== name.length - 2 || line.startsWith('@')) {
                     // iterating from the bottom up, so push dialogue blocks in reverse order
                     if (match[3]) {
                         this.tokens.push({ type: 'dual_dialogue_end' });
