@@ -124,13 +124,19 @@ export class Scanner {
 
         dialogueTokens.push({ type: 'dialogue_end' });
 
-        let parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
-
-        for (let part of parts) {
-            if (part.length > 0) {
-                dialogueTokens.push({ type: regex.parenthetical.test(part) ? 'parenthetical' : 'dialogue', text: part });
+        const parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
+        dialogueTokens.push(...parts.reduce((p, text = '') => {
+            if (!text.length) {
+                return p
             }
-        }
+            if (regex.parenthetical.test(text)) {
+                return [...p, { type: 'parenthetical', text}]
+            }
+            if (regex.lyrics.test(text)) {
+                return [...p, { type: 'lyrics', text: this.replaceTilde(text)}]
+            }
+            return [...p, { type: 'dialogue', text }]
+        }, []))
 
         dialogueTokens.push({ type: 'character', text: name.trim() });
         dialogueTokens.push({ type: 'dialogue_begin', dual: isDualDialogue ? 'right' : this.lastLineWasDualDialogue ? 'left' : undefined });
@@ -170,7 +176,7 @@ export class Scanner {
 
     private tokenizeLyrics(line: string, previous: Token[]): Token[] {
         const match = line.match(regex.lyrics);
-        const lyricToken = { type: 'lyrics', text: match[0].replace(/^~(?![ ])/gm, '') };
+        const lyricToken = { type: 'lyrics', text: this.replaceTilde(match[0]) };
         return [...previous, lyricToken];
     }
 
@@ -193,5 +199,9 @@ export class Scanner {
 
     private isTooShort(str: string) {
         return str.indexOf('  ') === str.length - 2
+    }
+
+    private replaceTilde(str: string) {
+        return str.replace(/^~(?![ ])/gm, '')
     }
 }
