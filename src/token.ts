@@ -199,9 +199,6 @@ export class DialogueToken implements Token {
 export class DialogueEndToken implements Token {
     readonly type = 'dialogue_end'
 
-    constructor() {
-    }
-
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
@@ -223,10 +220,6 @@ export class ParentheticalToken implements Token {
 export class DualDialogueBeginToken implements Token {
     readonly type = 'dual_dialogue_begin'
 
-    constructor() {
-
-    }
-
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
@@ -234,10 +227,6 @@ export class DualDialogueBeginToken implements Token {
 
 export class DualDialogueEndToken implements Token {
     readonly type ='dual_dialogue_end'
-
-    constructor() {
-
-    }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
@@ -318,10 +307,6 @@ export class BoneyardToken implements Token {
 export class PageBreakToken implements Token {
     readonly type = 'page_break'
 
-    constructor() {
-        
-    }
-
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
@@ -330,10 +315,6 @@ export class PageBreakToken implements Token {
 
 export class LineBreakToken implements Token {
     readonly type = 'line_break'
-
-    constructor() {
-
-    }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
