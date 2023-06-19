@@ -11,18 +11,24 @@ export interface Token {
     addTo(tokens: Token[]): Token[]
 }
 
-export class TitlePageTokenBlock {
-    readonly titlePageTokens: TitlePageToken[] = []
+export interface Block {
+    tokens: Token[],
+
+    addTo(tokens: Token[]): Token[]
+}
+
+export class TitlePageBlock implements Block {
+    readonly tokens: TitlePageToken[] = []
 
     constructor(line: string) {
         const match = line.replace(regex.title_page, '\n$1').split(regex.splitter).reverse();
-        this.titlePageTokens = match.reduce(
+        this.tokens = match.reduce(
             (previous, item) => new TitlePageToken(item).addTo(previous)
         , [])
     }
 
     addTo(tokens: Token[]): Token[] {
-        return [...tokens, ...this.titlePageTokens]
+        return [...tokens, ...this.tokens]
     }
 }
 
@@ -97,8 +103,8 @@ export class TransitionToken implements Token {
     }
 }
 
-export class DialogueBlock {
-    readonly dialogueTokens: Token[] = []
+export class DialogueBlock implements Block {
+    readonly tokens: Token[] = []
     readonly dual: boolean
     readonly too_short: boolean
     
@@ -111,13 +117,13 @@ export class DialogueBlock {
         // iterating from the bottom up, so push dialogue blocks in reverse order
         const isDualDialogue = !!(match[3]);
         if (isDualDialogue) {
-            this.dialogueTokens.push(new DualDialogueEndToken());
+            this.tokens.push(new DualDialogueEndToken());
         }
 
-        this.dialogueTokens.push(new DialogueEndToken());
+        this.tokens.push(new DialogueEndToken());
 
         const parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
-        this.dialogueTokens.push(...parts.reduce((p, text = '') => {
+        this.tokens.push(...parts.reduce((p, text = '') => {
             if (!text.length) {
                 return p
             }
@@ -130,7 +136,7 @@ export class DialogueBlock {
             return [...p, new DialogueToken(text)]
         }, []))
 
-        this.dialogueTokens.push(
+        this.tokens.push(
             new CharacterToken(name.trim()),
             new DialogueBeginToken(
                 isDualDialogue ? 'right' : dual ? 'left' : undefined
@@ -138,14 +144,14 @@ export class DialogueBlock {
         );
 
         if (dual) {
-            this.dialogueTokens.push(new DualDialogueBeginToken());
+            this.tokens.push(new DualDialogueBeginToken());
         }
 
         this.dual = isDualDialogue;
     }
 
     addTo(tokens: Token[]): Token[] {
-        return [...tokens, ...this.dialogueTokens]
+        return [...tokens, ...this.tokens]
     }
 }
 

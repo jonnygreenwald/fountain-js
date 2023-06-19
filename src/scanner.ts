@@ -1,5 +1,5 @@
 import { regex } from './regex';
-import { ActionToken, BoneyardToken, CenteredToken, DialogueBlock, LineBreakToken, LyricsToken, NoteToken, PageBreakToken, SceneHeadingToken, SectionToken, SynopsisToken, TitlePageTokenBlock, Token, TransitionToken } from './token';
+import { ActionToken, BoneyardToken, CenteredToken, DialogueBlock, LineBreakToken, LyricsToken, NoteToken, PageBreakToken, SceneHeadingToken, SectionToken, SynopsisToken, TitlePageBlock, Token, TransitionToken } from './token';
 
 import { Lexer } from './lexer';
 
@@ -13,7 +13,7 @@ export class Scanner {
         const tokens: Token[] = source.reduce((previous: Token[], line: string) => {
             /** title page */
             if (regex.title_page.test(line)) {
-                return new TitlePageTokenBlock(line).addTo(previous)
+                return new TitlePageBlock(line).addTo(previous)
             }
             /** scene headings */
             if (regex.scene_heading.test(line)) {
