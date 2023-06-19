@@ -1,5 +1,5 @@
 import { Fountain, Script } from '../src/fountain';
-import { Token } from '../src/token';
+import { ActionToken, Token } from '../src/token';
 
 describe('Fountain Markup Parser', () => {
     it('should exist', () => {
@@ -22,10 +22,9 @@ describe('Fountain Markup Parser', () => {
                 title_page: '',
                 script: "<p>It was a cold and clear morning.</p>"
             },
-            tokens: [{
-                type: 'action',
-                text: 'It was a cold and clear morning.'
-            }]
+            tokens: [
+                new ActionToken('It was a cold and clear morning.')
+            ]
         };
 
         expect(expected).toEqual(actual);
@@ -34,11 +33,10 @@ describe('Fountain Markup Parser', () => {
     it('should parse forced action', () => {
         const action = '!William enters -- and there stands Anna.';
 
-        let actual: Token[] = fountain.parse(action, true).tokens;
-        let expected: Token[] = [{
-                type: 'action',
-                text: 'William enters -- and there stands Anna.'
-        }];
+        let actual: Token[] = fountain.parse(action, true).tokens || [];
+        let expected: Token[] = [
+            new ActionToken('William enters -- and there stands Anna.')
+        ];
 
         expect(expected).toEqual(actual);
     });
@@ -47,11 +45,10 @@ describe('Fountain Markup Parser', () => {
         const action = `!TIRES SCREECHING...
                     Joe is looking at his phone for the direction.`;
 
-        let actual: Token[] = fountain.parse(action, true).tokens;
-        let expected: Token[] = [{
-                type: 'action',
-                text: 'TIRES SCREECHING...<br />Joe is looking at his phone for the direction.'
-        }];
+        let actual: Token[] = fountain.parse(action, true).tokens || [];
+        let expected: Token[] = [
+            new ActionToken('TIRES SCREECHING...<br />Joe is looking at his phone for the direction.')
+        ];
 
         expect(expected).toEqual(actual);
     });
