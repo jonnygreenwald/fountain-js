@@ -30,6 +30,10 @@ export class TitlePageBlock implements Block {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, ...this.tokens]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.title_page.test(line)
+    }
 }
 
 export class TitlePageToken implements Token {
@@ -73,6 +77,10 @@ export class SceneHeadingToken implements Token {
 
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.scene_heading.test(line)
+    }
 }
 
 export class CenteredToken implements Token {
@@ -87,6 +95,10 @@ export class CenteredToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.centered.test(line)
+    }
 }
 
 export class TransitionToken implements Token {
@@ -100,6 +112,10 @@ export class TransitionToken implements Token {
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
+    }
+
+    static matchedBy(line: string): boolean {
+        return regex.transition.test(line)
     }
 }
 
@@ -152,6 +168,10 @@ export class DialogueBlock implements Block {
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, ...this.tokens]
+    }
+
+    static matchedBy(line: string): boolean {
+        return regex.dialogue.test(line)
     }
 }
 
@@ -244,6 +264,10 @@ export class LyricsToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.lyrics.test(line)
+    }
 }
 
 export class SectionToken implements Token {
@@ -260,6 +284,10 @@ export class SectionToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.section.test(line)
+    }
 }
 
 export class SynopsisToken implements Token {
@@ -273,6 +301,10 @@ export class SynopsisToken implements Token {
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
+    }
+
+    static matchedBy(line: string): boolean {
+        return regex.synopsis.test(line)
     }
 }
 
@@ -288,6 +320,10 @@ export class NoteToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.note.test(line)
+    }
 }
 
 export class BoneyardToken implements Token {
@@ -302,6 +338,10 @@ export class BoneyardToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    static matchedBy(line: string): boolean {
+        return regex.boneyard.test(line)
+    }
 }
 
 export class PageBreakToken implements Token {
@@ -309,6 +349,10 @@ export class PageBreakToken implements Token {
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
+    }
+
+    static matchedBy(line: string): boolean {
+        return regex.page_break.test(line)
     }
 }
 
@@ -318,6 +362,10 @@ export class LineBreakToken implements Token {
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
+    }
+
+    static matchedBy(line: string): boolean {
+        return regex.line_break.test(line)
     }
 }
 
@@ -333,6 +381,11 @@ export class ActionToken implements Token {
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
     }
+
+    /** Currently unused, but here for posterity: */
+    // static matchedBy(line: string): boolean {
+    //     return regex.action.test(line)
+    // }
 }
 
 function isTooShort(str: string) {
