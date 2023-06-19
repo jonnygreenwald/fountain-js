@@ -4,8 +4,6 @@ import { Token } from './token';
 import { Lexer } from './lexer';
 
 export class Scanner {
-    private lastLineWasDualDialogue: boolean;
-
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
         const source: string[] = new Lexer().reconstruct(script).split(regex.splitter).reverse();
@@ -106,6 +104,7 @@ export class Scanner {
         return [...previous, transitionToken]
     }
 
+    private lastLineWasDualDialogue: boolean;
     private tokenizeDialogue(line: string, previous: Token[]): Token[] {
         const match = line.match(regex.dialogue);
 
