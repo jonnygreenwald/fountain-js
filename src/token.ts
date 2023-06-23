@@ -204,12 +204,9 @@ export class CharacterToken implements Token {
 export class DialogueToken implements Token {
     readonly type = 'dialogue'
     readonly text: string
-    readonly scene_number: string
-
-    constructor(text: string, scene_number?: string) {
-        this.text = text
-        this.scene_number = scene_number
-    }
+   constructor(text: string) {
+       this.text = text
+   }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this]
