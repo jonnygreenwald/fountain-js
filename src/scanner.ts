@@ -1,139 +1,70 @@
 import { regex } from './regex';
-import { Token } from './token';
+import { ActionToken, BoneyardToken, CenteredToken, DialogueBlock, LineBreakToken, LyricsToken, NoteToken, PageBreakToken, SceneHeadingToken, SectionToken, SynopsisToken, TitlePageBlock, Token, TransitionToken } from './token';
 
 import { Lexer } from './lexer';
 
 export class Scanner {
-    private tokens: Token[] = [];
+    private lastLineWasDualDialogue: boolean
 
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
         const source: string[] = new Lexer().reconstruct(script).split(regex.splitter).reverse();
 
-        let line: string;
-        let match: string[];
-        let dual: boolean;
-
-        for (line of source) {
+        const tokens: Token[] = source.reduce((previous: Token[], line: string) => {
             /** title page */
-            if (regex.title_page.test(line)) {
-                match = line.replace(regex.title_page, '\n$1').split(regex.splitter).reverse();
-
-                for (let item of match) {
-                    let pair = item.replace(regex.cleaner, '').split(/\:\n*/);
-
-                    this.tokens.push({ type: pair[0].trim().toLowerCase().replace(' ', '_'), is_title: true, text: pair[1].trim() });
-                }
-                continue;
+            if (TitlePageBlock.matchedBy(line)) {
+                return new TitlePageBlock(line).addTo(previous)
             }
-
             /** scene headings */
-            if (match = line.match(regex.scene_heading)) {
-                let text = match[1] || match[2];
-                let meta: RegExpMatchArray;
-                let num: string;
-
-                if (text.indexOf('  ') !== text.length - 2) {
-                    if (meta = text.match(regex.scene_number)) {
-                        num = meta[2];
-                        text = text.replace(regex.scene_number, '');
-                    }
-
-                    this.tokens.push({ type: 'scene_heading', text: text, scene_number: num || undefined });
-                }
-                continue;
+            if (SceneHeadingToken.matchedBy(line)) {
+                return new SceneHeadingToken(line).addTo(previous);
             }
-
             /** centered */
-            if (match = line.match(regex.centered)) {
-                this.tokens.push({ type: 'centered', text: match[0].replace(/>|</g, '') });
-                continue;
+            if (CenteredToken.matchedBy(line)) {
+                return new CenteredToken(line).addTo(previous);
             }
-
             /** transitions */
-            if (match = line.match(regex.transition)) {
-                this.tokens.push({ type: 'transition', text: match[1] || match[2] });
-                continue;
+            if (TransitionToken.matchedBy(line)) {
+                return new TransitionToken(line).addTo(previous);
             }
-
             /** dialogue blocks - characters, parentheticals and dialogue */
-            if (match = line.match(regex.dialogue)) {
-                let name = match[1] || match[2];
-
-                if (name.indexOf('  ') !== name.length - 2) {
-                    // iterating from the bottom up, so push dialogue blocks in reverse order
-                    if (match[3]) {
-                        this.tokens.push({ type: 'dual_dialogue_end' });
-                    }
-
-                    this.tokens.push({ type: 'dialogue_end' });
-
-                    let parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
-
-                    for (let part of parts) {
-                        if (part.length > 0) {
-                            this.tokens.push({ type: regex.parenthetical.test(part) ? 'parenthetical' : 'dialogue', text: part });
-                        }
-                    }
-
-                    this.tokens.push({ type: 'character', text: name.trim() });
-                    this.tokens.push({ type: 'dialogue_begin', dual: match[3] ? 'right' : dual ? 'left' : undefined });
-
-                    if (dual) {
-                        this.tokens.push({ type: 'dual_dialogue_begin' });
-                    }
-
-                    dual = match[3] ? true : false;
-                    continue;
-                }
+            if (DialogueBlock.matchedBy(line)) {
+                const dialogueBlock = new DialogueBlock(line, this.lastLineWasDualDialogue)
+                this.lastLineWasDualDialogue = dialogueBlock.dual
+                return dialogueBlock.addTo(previous);
             }
-
             /** section */
-            if (match = line.match(regex.section)) {
-                this.tokens.push({ type: 'section', text: match[2], depth: match[1].length });
-                continue;
+            if (SectionToken.matchedBy(line)) {
+                return new SectionToken(line).addTo(previous);
             }
-
             /** synopsis */
-            if (match = line.match(regex.synopsis)) {
-                this.tokens.push({ type: 'synopsis', text: match[1] });
-                continue;
+            if (SynopsisToken.matchedBy(line)) {
+                return new SynopsisToken(line).addTo(previous);
             }
-
             /** notes */
-            if (match = line.match(regex.note)) {
-                this.tokens.push({ type: 'note', text: match[1] });
-                continue;
+            if (NoteToken.matchedBy(line)) {
+                return new NoteToken(line).addTo(previous);
             }
-
             /** boneyard */
-            if (match = line.match(regex.boneyard)) {
-                this.tokens.push({ type: match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end' });
-                continue;
+            if (BoneyardToken.matchedBy(line)) {
+                return new BoneyardToken(line).addTo(previous);
             }
-
             /** lyrics */
-            if (match = line.match(regex.lyrics)) {
-                this.tokens.push({ type: 'lyrics', text: match[0].replace(/^~(?![ ])/gm, '') });
-                continue;
+            if (LyricsToken.matchedBy(line)) {
+                return new LyricsToken(line).addTo(previous);
             }
-
             /** page breaks */
-            if (regex.page_break.test(line)) {
-                this.tokens.push({ type: 'page_break' });
-                continue;
+            if (PageBreakToken.matchedBy(line)) {
+                return new PageBreakToken().addTo(previous);
             }
-
             /** line breaks */
-            if (regex.line_break.test(line)) {
-                this.tokens.push({ type: 'line_break' });
-                continue;
+            if (LineBreakToken.matchedBy(line)) {
+                return new LineBreakToken().addTo(previous);
             }
-
             // everything else is action -- remove `!` for forced action
-            this.tokens.push({ type: 'action', text: line.replace(/^!(?![ ])/gm, '') });
-        }
-
-        return this.tokens.reverse();
+            return new ActionToken(line).addTo(previous);
+        }, [])
+        
+        return tokens.reverse();
     }
 }

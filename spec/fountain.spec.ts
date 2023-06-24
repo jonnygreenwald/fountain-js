@@ -1,5 +1,5 @@
 import { Fountain, Script } from '../src/fountain';
-import { Token } from '../src/token';
+import { ActionToken, Token } from '../src/token';
 
 describe('Fountain Markup Parser', () => {
     it('should exist', () => {
@@ -22,38 +22,35 @@ describe('Fountain Markup Parser', () => {
                 title_page: '',
                 script: "<p>It was a cold and clear morning.</p>"
             },
-            tokens: [{
-                type: 'action',
-                text: 'It was a cold and clear morning.'
-            }]
+            tokens: [
+                new ActionToken('It was a cold and clear morning.')
+            ]
         };
 
-        expect(expected).toEqual(actual);
+        expect(actual).toEqual(expected);
     });
 
     it('should parse forced action', () => {
         const action = '!William enters -- and there stands Anna.';
 
-        let actual: Token[] = fountain.parse(action, true).tokens;
-        let expected: Token[] = [{
-                type: 'action',
-                text: 'William enters -- and there stands Anna.'
-        }];
+        let actual: Token[] = fountain.parse(action, true).tokens || [];
+        let expected: Token[] = [
+            new ActionToken('William enters -- and there stands Anna.')
+        ];
 
-        expect(expected).toEqual(actual);
+        expect(actual).toEqual(expected);
     });
 
     it('should parse multiple lines of forced action', () => {
         const action = `!TIRES SCREECHING...
                     Joe is looking at his phone for the direction.`;
 
-        let actual: Token[] = fountain.parse(action, true).tokens;
-        let expected: Token[] = [{
-                type: 'action',
-                text: 'TIRES SCREECHING...<br />Joe is looking at his phone for the direction.'
-        }];
+        let actual: Token[] = fountain.parse(action, true).tokens || [];
+        let expected: Token[] = [
+            new ActionToken('TIRES SCREECHING...<br />Joe is looking at his phone for the direction.')
+        ];
 
-        expect(expected).toEqual(actual);
+        expect(actual).toEqual(expected);
     });
 
     it('should parse a title page', () => {
@@ -79,7 +76,7 @@ describe('Fountain Markup Parser', () => {
             tokens: undefined
         };
 
-        expect(expected).toEqual(actual);
+        expect(actual).toEqual(expected);
     });
 
     it('should parse a scene heading', () => {
@@ -95,7 +92,7 @@ describe('Fountain Markup Parser', () => {
             tokens: undefined  
         };
         
-        expect(expected).toEqual(actual);
+        expect(actual).toEqual(expected);
     });
 
     it('should parse some transitions, forced headings and centered text', () => {
@@ -111,7 +108,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse dialog', () => {
@@ -127,7 +124,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dialogue"><h4>STEEL (O.S.)</h4><p>Beer\'s ready!</p></div><div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(skeptical)</p><p>Are they cold?</p></div>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse forced dialog', () => {
@@ -139,7 +136,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dialogue"><h4>McCLANE</h4><p>Yippie ki-yay! I got my lower-case C back!</p></div>'
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse dual dialog', () => {
@@ -154,7 +151,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dual-dialogue"><div class="dialogue left"><h4>STEEL</h4><p>Screw retirement.</p></div><div class="dialogue right"><h4>BRICK</h4><p>Screw retirement.</p></div></div>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse character extensions regardless of case', () => {
@@ -169,7 +166,7 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dialogue"><h4>MOM (O. S.)</h4><p>Luke! Come down for supper!</p></div><div class="dialogue"><h4>HANS (on the radio)</h4><p>What was it you said?</p></div>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse notes', () => {
@@ -180,7 +177,7 @@ describe('Fountain Markup Parser', () => {
 
         const expected = '<!-- Add an additional beat here -->';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse lyrics', () => {
@@ -192,7 +189,7 @@ describe('Fountain Markup Parser', () => {
 
         const expected = '<p class="lyrics">Willy Wonka! Willy Wonka! The amazing chocolatier!<br />Willy Wonka! Willy Wonka! Everybody give a cheer!</p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 });
 
@@ -210,7 +207,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"bold italic underline\">bold italics underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse bold underline', () => {
@@ -220,7 +217,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"bold underline\">bold underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse italic underline', () => {
@@ -230,7 +227,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse an alternative italic underline', () => {
@@ -240,7 +237,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse bold italics', () => {
@@ -250,7 +247,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"bold italic\">bold italics</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse bold', () => {
@@ -260,7 +257,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"bold\">bold</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse italic', () => {
@@ -270,7 +267,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"italic\">italics</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse underline', () => {
@@ -280,7 +277,7 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"underline\">underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse inline markdown', () => {
@@ -290,6 +287,17 @@ describe('Inline markdown lexer', () => {
         let actual = output.html.script;
         let expected = '<p><span class=\"bold italic underline\">bold italics underline</span> <span class=\"bold underline\">bold underline</span> <span class=\"italic underline\">italic underline</span> <span class=\"bold italic\">bold italics</span> <span class=\"bold\">bold</span> <span class=\"italic\">italics</span> <span class=\"underline\">underline</span></p>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toEqual(expected);
+    });
+
+    it('should use OOP token objects that are backwards-compatible with old versions', () => {
+        const text = 'The SCREEN DOOR slides ...es with two cold beers.';
+        const legacyToken = { type: 'action', text };
+        const oopToken = new ActionToken(text);
+
+        expect(oopToken).toBeInstanceOf(Object);
+        expect(JSON.stringify(oopToken)).toEqual(JSON.stringify(legacyToken));
+        expect(oopToken.text).toEqual(legacyToken.text);
+        expect(oopToken.type).toEqual(legacyToken.type);
     });
 });
