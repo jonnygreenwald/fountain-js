@@ -128,7 +128,6 @@ export class DialogueBlock implements Block {
         const match = line.match(regex.dialogue);
 
         let name = match[1] || match[2];
-        this.too_short = isTooShort(name) && !line.startsWith('@');
 
         // iterating from the bottom up, so push dialogue blocks in reverse order
         const isDualDialogue = !!(match[3]);

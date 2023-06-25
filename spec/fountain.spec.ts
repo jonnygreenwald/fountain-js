@@ -169,6 +169,30 @@ describe('Fountain Markup Parser', () => {
         expect(actual).toBe(expected);
     });
 
+    it('should parse single-letter character names', () => {
+        const dialog = `A
+                    Pieces were stolen from me.`
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>A</h4><p>Pieces were stolen from me.</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse forced, single-letter character names', () => {
+        const dialog = `@B
+                    They never gave mine back.`
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>B</h4><p>They never gave mine back.</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
     it('should parse notes', () => {
         const notes = '[[Add an additional beat here]]';
 
