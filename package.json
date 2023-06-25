@@ -33,7 +33,8 @@
   "contributors": [
     "Matt Daly",
     "Jonny Greenwald",
-    "Nathan Hoad"
+    "Nathan Hoad",
+    "Chandler Anderson"
   ],
   "license": "MIT",
   "devDependencies": {
