@@ -1,5 +1,5 @@
 import { Fountain, Script } from '../src/fountain';
-import { ActionToken, Token } from '../src/token';
+import { ActionToken, SceneHeadingToken, Token } from '../src/token';
 
 describe('Fountain Markup Parser', () => {
     it('should exist', () => {
@@ -92,6 +92,63 @@ describe('Fountain Markup Parser', () => {
             tokens: undefined  
         };
         
+        expect(actual).toEqual(expected);
+    });
+
+    it('should consider these variations scene headings', () => {
+        const intHeading = 'INT HOUSE - NOON';
+        const extHeading = "EXT. BRICK'S PATIO - DAY";
+        const estHeading = 'EST. FRONT LAWN - CONTINUOUS';
+        const lowerIntExtHeading = 'int/ext olympia circus - night'
+        const upperIntExtHeading = 'INT./EXT OLYMPIA CIRCUS - NIGHT'
+        const ieHeading = 'I/E ANOTHER CIRCUS - DAY'
+
+        let intActual = fountain.parse(intHeading).html.script;
+        let extActual = fountain.parse(extHeading).html.script;
+        let estActual = fountain.parse(estHeading).html.script;
+        let lowerActual = fountain.parse(lowerIntExtHeading).html.script;
+        let upperActual = fountain.parse(upperIntExtHeading).html.script;
+        let ieActual = fountain.parse(ieHeading).html.script;
+
+        expect(intActual).toBe('<h3>INT HOUSE - NOON</h3>');
+        expect(extActual).toBe("<h3>EXT. BRICK'S PATIO - DAY</h3>");
+        expect(estActual).toBe('<h3>EST. FRONT LAWN - CONTINUOUS</h3>');
+        expect(lowerActual).toBe('<h3>int/ext olympia circus - night</h3>');
+        expect(upperActual).toBe('<h3>INT./EXT OLYMPIA CIRCUS - NIGHT</h3>');
+        expect(ieActual).toBe('<h3>I/E ANOTHER CIRCUS - DAY</h3>');
+    });
+
+    it('should parse a scene number', () => {
+        const numHeaindg = 'INT. HOUSE - DAY #1#';
+        const alphaHeading = 'I/E HOUSE - DAY #A#';
+        const alphaNumHeading = 'INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#';
+
+        let numToken: Token[] = fountain.parse(numHeaindg, true).tokens || [];
+        let alphaToken: Token[] = fountain.parse(alphaHeading, true).tokens || [];
+        let alphaNumToken: Token[] = fountain.parse(alphaNumHeading, true).tokens || [];
+
+        expect(numToken).toEqual([ new SceneHeadingToken('INT. HOUSE - DAY #1#') ]);
+        expect(alphaToken).toEqual([ new SceneHeadingToken('I/E HOUSE - DAY #A#') ]);
+        expect(alphaNumToken).toEqual([ 
+            new SceneHeadingToken('INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#')
+        ]);
+    });
+
+    it('should parse forced, single-aplhanumeric scene headings', () => {
+        const heading = '.1  ';
+
+        let actual: Token[] = fountain.parse(heading, true).tokens || [];
+        let expected: Token[] = [ new SceneHeadingToken('.1') ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should treat a period only at start of a line as action', () => {
+        const notHeading = '.  ';
+
+        let actual: Token[] = fountain.parse(notHeading, true).tokens || [];
+        let expected: Token[] = [ new ActionToken('.') ];
+
         expect(actual).toEqual(expected);
     });
 

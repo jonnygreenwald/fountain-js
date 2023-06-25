@@ -56,12 +56,10 @@ export class SceneHeadingToken implements Token {
     readonly type = 'scene_heading';
     readonly text: string;
     readonly scene_number: string;
-    readonly too_short: boolean;
 
     constructor(line: string) {
         const match = line.match(regex.scene_heading);
         this.text = match[1] || match[2];
-        this.too_short = isTooShort(this.text);
 
         const meta: RegExpMatchArray = this.text.match(regex.scene_number);
         if (meta) {
@@ -71,10 +69,6 @@ export class SceneHeadingToken implements Token {
     }
 
     addTo(tokens: Token[]): Token[] {
-        if (this.too_short) {
-            return tokens;
-        }
-
         return [...tokens, this];
     }
 
