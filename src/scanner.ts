@@ -1,10 +1,25 @@
 import { regex } from './regex';
-import { ActionToken, BoneyardToken, CenteredToken, DialogueBlock, LineBreakToken, LyricsToken, NoteToken, PageBreakToken, SceneHeadingToken, SectionToken, SynopsisToken, TitlePageBlock, Token, TransitionToken } from './token';
+import { 
+    ActionToken,
+    BoneyardToken,
+    CenteredToken,
+    DialogueBlock,
+    LineBreakToken,
+    LyricsToken,
+    NoteToken,
+    PageBreakToken,
+    SceneHeadingToken,
+    SectionToken,
+    SynopsisToken,
+    TitlePageBlock,
+    Token,
+    TransitionToken
+ } from './token';
 
 import { Lexer } from './lexer';
 
 export class Scanner {
-    private lastLineWasDualDialogue: boolean
+    private lastLineWasDualDialogue: boolean;
 
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
