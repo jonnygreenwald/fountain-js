@@ -239,13 +239,50 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse forced, single-letter character names', () => {
-        const dialog = `@B
+        const dialog = `    @B
                     They never gave mine back.`
 
         let output: Script = fountain.parse(dialog);
         let actual = output.html.script;
 
         let expected = '<div class="dialogue"><h4>B</h4><p>They never gave mine back.</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should allow special characters and numbers in the character names', () => {
+        const dialog = `DISGRUNTLED CITIZEN #1
+                    (standing)
+                    Excuse me. How much did it cost?`
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>DISGRUNTLED CITIZEN #1</h4><p class="parenthetical">(standing)</p><p>Excuse me. How much did it cost?</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should not allow character names that are all numbers per spec', () => {
+        const dialog = `11 (O.S.)
+                    I'm the monster.`
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = "<p>11 (O.S.)<br />I'm the monster.</p>";
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should allow character names that are all numbers if forced', () => {
+        const dialog = `@11
+                    I'm the monster.`
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>11</h4><p>I\'m the monster.</p></div>';
 
         expect(actual).toBe(expected);
     });
@@ -286,7 +323,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
         
         let actual = output.html.script;
-        let expected = '<p><span class=\"bold italic underline\">bold italics underline</span></p>';
+        let expected = '<p><span class="bold italic underline">bold italics underline</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -296,7 +333,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"bold underline\">bold underline</span></p>';
+        let expected = '<p><span class="bold underline">bold underline</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -306,7 +343,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
+        let expected = '<p><span class="italic underline">italic underline</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -316,7 +353,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"italic underline\">italic underline</span></p>';
+        let expected = '<p><span class="italic underline">italic underline</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -326,7 +363,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"bold italic\">bold italics</span></p>';
+        let expected = '<p><span class="bold italic">bold italics</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -336,7 +373,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"bold\">bold</span></p>';
+        let expected = '<p><span class="bold">bold</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -346,7 +383,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"italic\">italics</span></p>';
+        let expected = '<p><span class="italic">italics</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -356,7 +393,7 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"underline\">underline</span></p>';
+        let expected = '<p><span class="underline">underline</span></p>';
 
         expect(actual).toBe(expected);
     });
@@ -366,11 +403,43 @@ describe('Inline markdown lexer', () => {
         let output: Script = fountain.parse(inlineText);
 
         let actual = output.html.script;
-        let expected = '<p><span class=\"bold italic underline\">bold italics underline</span> <span class=\"bold underline\">bold underline</span> <span class=\"italic underline\">italic underline</span> <span class=\"bold italic\">bold italics</span> <span class=\"bold\">bold</span> <span class=\"italic\">italics</span> <span class=\"underline\">underline</span></p>';
+        let expected = '<p><span class="bold italic underline">bold italics underline</span> <span class="bold underline">bold underline</span> <span class="italic underline">italic underline</span> <span class="bold italic">bold italics</span> <span class="bold">bold</span> <span class="italic">italics</span> <span class="underline">underline</span></p>';
 
-        expect(actual).toEqual(expected);
+        expect(actual).toBe(expected);
     });
 
+    it('should parse inlines in character names', () => {
+        const bold = `**MR. SELF DESTRUCT**
+                    I am the voice inside your head.`
+
+        let actual = fountain.parse(bold).html.script;
+        let expected = '<div class="dialogue"><h4><span class="bold">MR. SELF DESTRUCT</span></h4><p>I am the voice inside your head.</p></div>';
+        expect(actual).toBe(expected);
+
+        const italic = `*MR. SELF DESTRUCT*
+                    I am the lover in your bed.`
+
+        actual = fountain.parse(italic).html.script;
+        expected = '<div class="dialogue"><h4><span class="italic">MR. SELF DESTRUCT</span></h4><p>I am the lover in your bed.</p></div>';
+        expect(actual).toBe(expected);
+
+        const underline = `_MR. SELF DESTRUCT_
+                    I am the hate you try to hide.`
+
+        actual = fountain.parse(underline).html.script;
+        expected = '<div class="dialogue"><h4><span class="underline">MR. SELF DESTRUCT</span></h4><p>I am the hate you try to hide.</p></div>';
+        expect(actual).toBe(expected);
+
+        const boldItalic = `***MR. SELF DESTRUCT***
+                    And I control you...`
+
+        actual = fountain.parse(boldItalic).html.script;
+        expected = '<div class="dialogue"><h4><span class="bold italic">MR. SELF DESTRUCT</span></h4><p>And I control you...</p></div>';
+        expect(actual).toBe(expected);
+    });
+});
+
+describe('Additional compatibility tests', () => {
     it('should use OOP token objects that are backwards-compatible with old versions', () => {
         const text = 'The SCREEN DOOR slides ...es with two cold beers.';
         const legacyToken = { type: 'action', text };

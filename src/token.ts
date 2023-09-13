@@ -121,17 +121,21 @@ export class DialogueBlock implements Block {
     constructor(line: string, dual: boolean) {
         const match = line.match(regex.dialogue);
 
-        let name = match[1] || match[2];
+        let name = match[1];
+
+        if (name.startsWith('@')) {
+            name = name.substring(1);
+        }
 
         // iterating from the bottom up, so push dialogue blocks in reverse order
-        const isDualDialogue = !!(match[3]);
+        const isDualDialogue = !!(match[2]);
         if (isDualDialogue) {
             this.tokens.push(new DualDialogueEndToken());
         }
 
         this.tokens.push(new DialogueEndToken());
 
-        const parts: string[] = match[4].split(/(\(.+\))(?:\n+)/).reverse();
+        const parts: string[] = match[3].split(/(\(.+\))(?:\n+)/).reverse();
         this.tokens.push(...parts.reduce((p, text = '') => {
             if (!text.length) {
                 return p;
