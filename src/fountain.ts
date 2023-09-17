@@ -32,15 +32,24 @@ export class Fountain {
             );
 
         try {
+            let title: string;
+
             this.tokens = this.scanner.tokenize(script);
-            let title = this.tokens.find(token => token.type === 'title');
+            const tokenCopy = JSON.parse(JSON.stringify(this.tokens)) as Token[];
+
+            const titleToken = this.tokens.find(token => token.type === 'title');
+            if (titleToken) {
+                // lexes any inlines on the title then removes any HTML / line breaks
+                title = this.inlineLex.reconstruct(titleToken.text)
+                            .replace('<br />', ' ')
+                            .replace(/<(?:.|\n)*?>/g, '');
+            }
 
             return {
-                title: title ? this.inlineLex.reconstruct(title.text)
-                        .replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, '') : undefined,
+                title,
                 html: {
-                    title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
-                    script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
+                    title_page: tokenCopy.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
+                    script: tokenCopy.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
                 },
                 tokens: getTokens ? this.tokens : undefined
             }
