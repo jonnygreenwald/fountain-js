@@ -88,7 +88,7 @@ console.log(fountain.tokens);
 
 ### Token Structure
 
-Version 1.0 of Fountain-js creates a flat token strucure and is not like a usual AST.
+Version `1.0` of Fountain-js creates a flat token strucure and is not like a usual AST.
 
 Below is a small sample of the `tokens` output from [Brick & Steel](samples/brick%26steel.fountain):
 
@@ -160,6 +160,24 @@ interface Token {
     depth?: number
 }
 ```
+
+### Inline Lexing
+
+Originally, the text within tokens would have their inline markup, e.g. emphasis, underline, or line breaks, converted to HTML; however, given some use cases, this is not practical for all library users.
+
+As of version `1.1.2`, any inline markup will remain **unchanged** in the token text.
+
+```javascript
+[
+  ...
+  { type: 'action', text: 'Screaming, chaos, *frenzy*.\nThree words that apply to this scene.' },
+  ...
+]
+```
+
+This means you'll have to perform an inline lex on the token text when processing your tokens.
+
+As a suggestion, one can import and extend the `InlineLexer` class. Its `inline` property and `reconstruct` method can be overwritten and modified to suit your needs if something other than HTML output is desired.
 
 ## Fountain.ts
 
