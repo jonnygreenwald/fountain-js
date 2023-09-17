@@ -16,6 +16,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - any token text will now need to be seperately lexed either by the `InlineLexer` class, a modified version of said class, or alternatively you can use `Fountain.to_html()` seperately if desired.
 
+### Changed
+
+- tokens can be accessed as traditionally through the `getTokens` parameter on `parse` or through the `tokens` property on the `Fountain` class itself.
+
 ## [1.1.1] - 2023-09-13
 
 ### Fixed

@@ -469,9 +469,13 @@ describe('Additional compatibility tests', () => {
         expect(oopToken.type).toEqual(legacyToken.type);
     });
 
-    it('should not mutate token text when converting to HTML', () => {
-        let fountain = new Fountain();
+    let fountain: Fountain;
 
+    beforeEach(() => {
+        fountain = new Fountain();
+    });
+
+    it('should not mutate token text when converting to HTML', () => {
         const action = `Murtaugh, springing hell bent for leather -- and folks,
                         grab your hats … because just then, a _BELL COBRA
                         HELICOPTER_ crests the edge of the bluff.`;
@@ -490,5 +494,20 @@ describe('Additional compatibility tests', () => {
 
         expect(output.tokens).toEqual(expectedTokens);
         expect(output.html.script).toBe(expectedHTML);
+    });
+
+    it('should return tokens via `getTokens` and its property', () => {
+        let output: Script = fountain.parse(
+            'They drink long and well from the beers.',
+            true
+        );
+        expect(output.tokens).toEqual(fountain.tokens);
+
+        let scene = `EXT. OLYMPIA CIRCUS - NIGHT
+
+        ...where the second-rate carnival is parked for the moment in an Alabama field.`;
+
+        output = fountain.parse(scene, true);
+        expect(output.tokens).toEqual(fountain.tokens);
     });
 });

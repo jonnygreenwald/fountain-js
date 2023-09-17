@@ -13,7 +13,7 @@ export interface Script {
 }
 
 export class Fountain {
-    private tokens: Token[];
+    tokens: Token[];
     private scanner: Scanner;
     private inlineLex: InlineLexer;
 
