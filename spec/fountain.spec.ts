@@ -47,7 +47,7 @@ describe('Fountain Markup Parser', () => {
 
         let actual: Token[] = fountain.parse(action, true).tokens || [];
         let expected: Token[] = [
-            new ActionToken('TIRES SCREECHING...<br />Joe is looking at his phone for the direction.')
+            new ActionToken('TIRES SCREECHING...\nJoe is looking at his phone for the direction.')
         ];
 
         expect(actual).toEqual(expected);
@@ -135,7 +135,7 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse forced, single-aplhanumeric scene headings', () => {
-        const heading = '.1  ';
+        const heading = '.1';
 
         let actual: Token[] = fountain.parse(heading, true).tokens || [];
         let expected: Token[] = [ new SceneHeadingToken('.1') ];
@@ -147,7 +147,7 @@ describe('Fountain Markup Parser', () => {
         const notHeading = '.  ';
 
         let actual: Token[] = fountain.parse(notHeading, true).tokens || [];
-        let expected: Token[] = [ new ActionToken('.') ];
+        let expected: Token[] = [ new ActionToken('.  ') ];
 
         expect(actual).toEqual(expected);
     });
@@ -181,6 +181,24 @@ describe('Fountain Markup Parser', () => {
 
         let expected = '<div class="dialogue"><h4>STEEL (O.S.)</h4><p>Beer\'s ready!</p></div><div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(skeptical)</p><p>Are they cold?</p></div>';
 
+        expect(actual).toBe(expected);
+    });
+
+    it('should should respect a "two spaces" line break in dialogue', () => {
+        const dialog = `DEALER
+                    Ten.
+                    Four.
+                    Dealer gets a seven.
+  
+                    Hit or stand sir?
+
+                        MONKEY
+                    Dude, I'm a monkey.`;
+
+        let output: Script = fountain.parse(dialog);
+        let actual = output.html.script;
+
+        let expected = `<div class="dialogue"><h4>DEALER</h4><p>Ten.<br />Four.<br />Dealer gets a seven.<br />  <br />Hit or stand sir?</p></div><div class="dialogue"><h4>MONKEY</h4><p>Dude, I'm a monkey.</p></div>`;
         expect(actual).toBe(expected);
     });
 
@@ -449,5 +467,47 @@ describe('Additional compatibility tests', () => {
         expect(JSON.stringify(oopToken)).toEqual(JSON.stringify(legacyToken));
         expect(oopToken.text).toEqual(legacyToken.text);
         expect(oopToken.type).toEqual(legacyToken.type);
+    });
+
+    let fountain: Fountain;
+
+    beforeEach(() => {
+        fountain = new Fountain();
+    });
+
+    it('should not mutate token text when converting to HTML', () => {
+        const action = `Murtaugh, springing hell bent for leather -- and folks,
+                        grab your hats … because just then, a _BELL COBRA
+                        HELICOPTER_ crests the edge of the bluff.`;
+
+        let output: Script = fountain.parse(action, true);
+
+        let expectedTokens = [
+            new ActionToken(
+                'Murtaugh, springing hell bent for leather -- and folks,\n'
+                + 'grab your hats … because just then, a _BELL COBRA\n'
+                + 'HELICOPTER_ crests the edge of the bluff.'
+            )
+        ] as Token[];
+
+        let expectedHTML = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a <span class="underline">BELL COBRA<br />HELICOPTER</span> crests the edge of the bluff.</p>'
+
+        expect(output.tokens).toEqual(expectedTokens);
+        expect(output.html.script).toBe(expectedHTML);
+    });
+
+    it('should return tokens via `getTokens` and its property', () => {
+        let output: Script = fountain.parse(
+            'They drink long and well from the beers.',
+            true
+        );
+        expect(output.tokens).toEqual(fountain.tokens);
+
+        let scene = `EXT. OLYMPIA CIRCUS - NIGHT
+
+        ...where the second-rate carnival is parked for the moment in an Alabama field.`;
+
+        output = fountain.parse(scene, true);
+        expect(output.tokens).toEqual(fountain.tokens);
     });
 });
