@@ -83,7 +83,7 @@ export class CenteredToken implements Token {
 
     constructor(line: string) {
         const match = line.match(regex.centered);
-        this.text = match[0].replace(/[><]/g, '');
+        this.text = match[0].replace(/ *[><] */g, '');
     }
 
     addTo(tokens: Token[]): Token[] {
