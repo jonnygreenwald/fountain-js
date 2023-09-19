@@ -65,7 +65,7 @@ describe('Fountain Markup Parser', () => {
                             Next Level Productions
                             1588 Mission Dr.
                             Solvang, CA 93463`;
-        
+
         let actual: Script = fountain.parse(title_page);
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
@@ -339,7 +339,7 @@ describe('Inline markdown lexer', () => {
     it('should parse bold italics underline', () => {
         const inlineText = '_***bold italics underline***_';
         let output: Script = fountain.parse(inlineText);
-        
+
         let actual = output.html.script;
         let expected = '<p><span class="bold italic underline">bold italics underline</span></p>';
 

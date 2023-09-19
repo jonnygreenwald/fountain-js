@@ -83,7 +83,7 @@ export class CenteredToken implements Token {
 
     constructor(line: string) {
         const match = line.match(regex.centered);
-        this.text = match[0].replace(/>|</g, '');
+        this.text = match[0].replace(/[><]/g, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -128,7 +128,7 @@ export class DialogueBlock implements Block {
         }
 
         // iterating from the bottom up, so push dialogue blocks in reverse order
-        const isDualDialogue = !!(match[2]);
+        const isDualDialogue = !!match[2];
         if (isDualDialogue) {
             this.tokens.push(new DualDialogueEndToken());
         }
@@ -253,7 +253,7 @@ export class LyricsToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^~(?![ ])/gm, '');
+        this.text = line.replace(/^~(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -370,7 +370,7 @@ export class ActionToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^!(?![ ])/gm, '');
+        this.text = line.replace(/^!(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
