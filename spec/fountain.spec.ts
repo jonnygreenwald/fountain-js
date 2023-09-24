@@ -65,7 +65,7 @@ describe('Fountain Markup Parser', () => {
                             Next Level Productions
                             1588 Mission Dr.
                             Solvang, CA 93463`;
-        
+
         let actual: Script = fountain.parse(title_page);
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
@@ -102,6 +102,7 @@ describe('Fountain Markup Parser', () => {
         const lowerIntExtHeading = 'int/ext olympia circus - night'
         const upperIntExtHeading = 'INT./EXT OLYMPIA CIRCUS - NIGHT'
         const ieHeading = 'I/E ANOTHER CIRCUS - DAY'
+        const iePeriodHeading = 'I./E. A DIFFERENT CIRCUS - MOMENTS LATER'
 
         let intActual = fountain.parse(intHeading).html.script;
         let extActual = fountain.parse(extHeading).html.script;
@@ -109,6 +110,7 @@ describe('Fountain Markup Parser', () => {
         let lowerActual = fountain.parse(lowerIntExtHeading).html.script;
         let upperActual = fountain.parse(upperIntExtHeading).html.script;
         let ieActual = fountain.parse(ieHeading).html.script;
+        let iePeriodActual = fountain.parse(iePeriodHeading).html.script;
 
         expect(intActual).toBe('<h3>INT HOUSE - NOON</h3>');
         expect(extActual).toBe("<h3>EXT. BRICK'S PATIO - DAY</h3>");
@@ -116,6 +118,7 @@ describe('Fountain Markup Parser', () => {
         expect(lowerActual).toBe('<h3>int/ext olympia circus - night</h3>');
         expect(upperActual).toBe('<h3>INT./EXT OLYMPIA CIRCUS - NIGHT</h3>');
         expect(ieActual).toBe('<h3>I/E ANOTHER CIRCUS - DAY</h3>');
+        expect(iePeriodActual).toBe('<h3>I./E. A DIFFERENT CIRCUS - MOMENTS LATER</h3>');
     });
 
     it('should parse a scene number', () => {
@@ -163,7 +166,19 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(text);
         let actual = output.html.script;
 
-        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL <br /> FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
+        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it ('should strip  leading/trailing spaces from centered text', () => {
+        const text = `>     center line 1     <
+                      >     center line 2     <`;
+
+        const expected = '<p class="centered">center line 1<br />center line 2</p>';
+
+        const output: Script = fountain.parse(text);
+        const actual = output.html.script;
 
         expect(actual).toBe(expected);
     });
@@ -305,6 +320,97 @@ describe('Fountain Markup Parser', () => {
         expect(actual).toBe(expected);
     });
 
+    it('should accept emphasis inside parentheticals', () => {
+        const emphasisInside = `STEEL
+                    (**starting the engine**)
+                    So much for retirement!`;
+
+        let output: Script = fountain.parse(emphasisInside);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>STEEL</h4><p class="parenthetical">(<span class="bold">starting the engine</span>)</p><p>So much for retirement!</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should accept emphasis around parentheticals', () => {
+        const emphasisOutside = `WALT
+                    *(ah, wonderful)*
+                    Oh, you've been "crunching numbers."`;
+
+        let output: Script = fountain.parse(emphasisOutside);
+        let actual = output.html.script;
+
+        let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been "crunching numbers."</p></div>`;
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should reject parentheticals with incomplete emphasis', () => {
+        const wrongEmphasis = `TREVA
+                        _**(sing-song)*_
+                        Oh my --
+                        La~de~da!`;
+
+        let output: Script = fountain.parse(wrongEmphasis);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>TREVA</h4><p><span class="italic underline">*(sing-song)</span><br />Oh my --<br />La~de~da!</p></div>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should be resiliant against parenthetical oddities', () => {
+        const hangingParenthetical = `BRICK
+                                (confused)`;
+        
+        const tooManySpaces = `DAN
+                        Then let's retire them.
+                        (grinning maniacally)                 
+                        _Permanently_.`;
+        
+        let hangingActual = fountain.parse(hangingParenthetical).html.script;
+        let tooManySpacesActual = fountain.parse(tooManySpaces).html.script;
+
+        let hangingExpected = '<div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(confused)</p></div>';
+        let tooManyExpected = `<div class="dialogue"><h4>DAN</h4><p>Then let's retire them.</p><p class="parenthetical">(grinning maniacally)</p><p><span class="underline">Permanently</span>.</p></div>`;
+
+        expect(hangingActual).toBe(hangingExpected);
+        expect(tooManySpacesActual).toBe(tooManyExpected);
+    });
+
+    it('it should respect all empahsis in parentheticals', () => {
+        const extremeEmphasis = `TOPHER
+                            *(griping)*
+                            **(complaining)**
+                            _(grousing)_
+                            ***(howling)***
+                            _*(screaming)*_
+                            **_(clangorously)_**
+                            ***_(ear-splitting noises)_***
+                            I'm upset.`;
+
+        let output: Script = fountain.parse(extremeEmphasis);
+        let actual = output.html.script;
+        let expected = `<div class="dialogue"><h4>TOPHER</h4><p class="parenthetical"><span class="italic">(griping)</span></p><p class="parenthetical"><span class="bold">(complaining)</span></p><p class="parenthetical"><span class="underline">(grousing)</span></p><p class="parenthetical"><span class="bold italic">(howling)</span></p><p class="parenthetical"><span class="italic underline">(screaming)</span></p><p class="parenthetical"><span class="bold underline">(clangorously)</span></p><p class="parenthetical"><span class="bold italic underline">(ear-splitting noises)</span></p><p>I'm upset.</p></div>`;
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse lyrics in dialogue', () => {
+        const singing = `TREVA
+                        (sing-song)
+                        ~Oh my --
+                        ~La~de~da!`;
+
+        let output: Script = fountain.parse(singing);
+        let actual = output.html.script;
+
+        let expected = '<div class="dialogue"><h4>TREVA</h4><p class="parenthetical">(sing-song)</p><p class="lyrics">Oh my --<br />La~de~da!</p></div>';
+
+        expect(expected).toBe(actual);
+    });
+
     it('should parse notes', () => {
         const notes = '[[Add an additional beat here]]';
 
@@ -339,7 +445,7 @@ describe('Inline markdown lexer', () => {
     it('should parse bold italics underline', () => {
         const inlineText = '_***bold italics underline***_';
         let output: Script = fountain.parse(inlineText);
-        
+
         let actual = output.html.script;
         let expected = '<p><span class="bold italic underline">bold italics underline</span></p>';
 

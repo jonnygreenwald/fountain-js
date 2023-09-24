@@ -44,6 +44,6 @@ export class InlineLexer extends Lexer {
             }
         }
 
-        return line.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_').trim();
+        return line.replace(/\[star]/g, '*').replace(/\[underline]/g, '_').trim();
     }
 }

@@ -83,7 +83,7 @@ export class CenteredToken implements Token {
 
     constructor(line: string) {
         const match = line.match(regex.centered);
-        this.text = match[0].replace(/>|</g, '');
+        this.text = match[0].replace(/ *[><] */g, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -117,26 +117,25 @@ export class DialogueBlock implements Block {
     readonly tokens: Token[] = [];
     readonly dual: boolean;
     readonly too_short: boolean;
-    
+
     constructor(line: string, dual: boolean) {
         const match = line.match(regex.dialogue);
 
         let name = match[1];
 
-        if (name.startsWith('@')) {
-            name = name.substring(1);
-        }
-
         // iterating from the bottom up, so push dialogue blocks in reverse order
-        const isDualDialogue = !!(match[2]);
+        const isDualDialogue = !!match[2];
         if (isDualDialogue) {
             this.tokens.push(new DualDialogueEndToken());
         }
 
         this.tokens.push(new DialogueEndToken());
 
-        const parts: string[] = match[3].split(/(\(.+\))(?:\n+)/).reverse();
-        this.tokens.push(...parts.reduce((p, text = '') => {
+        const parts: string[] = match[3].split(/\n/);
+        let dialogue: Token[] = parts.reduce((p: Token[], text = '') => {
+            const lastIndex = p.length - 1;
+            const previousToken = p[lastIndex];
+
             if (!text.length) {
                 return p;
             }
@@ -144,13 +143,29 @@ export class DialogueBlock implements Block {
                 return [...p, new ParentheticalToken(text)];
             }
             if (regex.lyrics.test(text)) {
-                return [...p, new LyricsToken(text)];
+                if (previousToken.type === 'lyrics') {
+                    p[lastIndex].text = 
+                                `${previousToken.text}\n${text.replace(/^~/, '')}`;
+                    return p;
+                } else {
+                    return [...p, new LyricsToken(text)];
+                }
+            }
+            if (previousToken) {
+                if (previousToken.type === 'dialogue') {
+                    p[lastIndex].text = `${previousToken.text}\n${text}`;
+                    return p;
+                }
             }
             return [...p, new DialogueToken(text)];
-        }, []));
+        }, [] as Token[]).reverse();
+        this.tokens.push(...dialogue);
 
         this.tokens.push(
-            new CharacterToken(name.trim()),
+            new CharacterToken(
+                name.startsWith('@') 
+                ? name.replace(/^@/, '').trim() 
+                : name.trim()),
             new DialogueBeginToken(
                 isDualDialogue ? 'right' : dual ? 'left' : undefined
             )
@@ -253,7 +268,7 @@ export class LyricsToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^~(?![ ])/gm, '');
+        this.text = line.replace(/^~(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -370,7 +385,7 @@ export class ActionToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^!(?![ ])/gm, '');
+        this.text = line.replace(/^!(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {

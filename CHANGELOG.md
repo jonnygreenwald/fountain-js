@@ -6,6 +6,22 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.3] - 2023-09-24
+
+### Fixed
+
+- scene headings have more variation like `I./E.` is now valid where originally it wasn't.
+- Lyrics work better in dialogue and do not create multiple paragraph tags if there is more than one line of singing in the character's speech.
+- multiple spaces after a parenthetical no longer breaks the parenthetical and turns it into speech.
+- hanging parentheticals (at the end of dialogue) no longer disappear or break dialogue.
+
+### Changed
+
+- regex cleanup and removal of unnecessary capturing groups.
+- centered text is now stripped of all whitespace.
+- parentheticals now work with emphasis outside of the parenthesis e.g. `*(ah, wonderful)*` as well as inside.
+- all forms of emphasis around the parenthetical are now accepted.
+
 ## [1.1.2] - 2023-09-17
 
 ### Fixed
