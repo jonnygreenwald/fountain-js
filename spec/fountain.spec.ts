@@ -561,6 +561,26 @@ describe('Inline markdown lexer', () => {
         expected = '<div class="dialogue"><h4><span class="bold italic">MR. SELF DESTRUCT</span></h4><p>And I control you...</p></div>';
         expect(actual).toBe(expected);
     });
+
+    it('should ignore non-flanking inline markdown', () => {
+        const inlineText = `_ underline_ _underline _ * italic* *italic *
+                            ** bold** **bold **
+                            *** bold italics*** ***bold italics ***
+                            _*** bold italics underline***_ _***bold italics underline ***_
+                            _** bold underline**_ _**bold underline **_
+                            _* italic underline*_ _*italic underline *_`;
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p>_ underline_ _underline _ * italic* *italic *<br />' +
+                       '** bold** **bold **<br />' +
+                       '*** bold italics*** ***bold italics ***<br />' +
+                       '_*** bold italics underline***_ _***bold italics underline ***_<br />' +
+                       '_** bold underline**_ _**bold underline **_<br />' +
+                       '_* italic underline*_ _*italic underline *_<br />';
+
+        expect(actual).toBe(expected);
+    });
 });
 
 describe('Additional compatibility tests', () => {

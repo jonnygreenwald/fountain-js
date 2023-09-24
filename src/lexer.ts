@@ -32,8 +32,8 @@ export class InlineLexer extends Lexer {
         const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
         line = line.replace(regex.note_inline, this.inline.note)
-            .replace(/\\\*/g, '[star]')
-            .replace(/\\_/g, '[underline]')
+            .replace(/\\\*/g, '[{{{star}}}]')                     // perserve escaped astersisks
+            .replace(/\\_/g, '[{{{underline}}}]')                 // perserve escaped underscores
             .replace(/\n/g, this.inline.line_break);
 
         for (let style of styles) {
@@ -44,6 +44,6 @@ export class InlineLexer extends Lexer {
             }
         }
 
-        return line.replace(/\[star]/g, '*').replace(/\[underline]/g, '_').trim();
+        return line.replace(/\[{{{star}}}]/g, '*').replace(/\[{{{underline}}}]/g, '_').trim();
     }
 }
