@@ -171,7 +171,18 @@ describe('Fountain Markup Parser', () => {
         expect(actual).toBe(expected);
     });
 
-    it ('should strip  leading/trailing spaces from centered text', () => {
+    it('should parse forced transitions', () => {
+        const transition = '> Burn to Pink.';
+
+        let output: Script = fountain.parse(transition);
+        let actual = output.html.script;
+
+        let expected = '<h2>Burn to Pink.</h2>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should strip  leading/trailing spaces from centered text', () => {
         const text = `>     center line 1     <
                       >     center line 2     <`;
 
@@ -732,7 +743,7 @@ describe('Inline markdown lexer', () => {
         expect(actual).toBe(expected);
     });
 
-    it('should escape underlines', () => {
+    it('should escape underscores', () => {
         const escapedItalic = 'Steel hit complile, the screen said: "*\\_hello_world_*"';
         const escaped = 'He typed \\_A and then B_, and closed the terminal.';
 
@@ -742,6 +753,43 @@ describe('Inline markdown lexer', () => {
 
         actual = fountain.parse(escaped).html.script;
         expected = '<p>He typed _A and then B_, and closed the terminal.</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape all other Fountain tokens', () => {
+        const escapes = '\\@ \\# \\! \\* \\_ \\$ \\\\ \\/ \\~ \\` \\+ \\= \\. \\> \\< \\^';
+
+        let actual = fountain.parse(escapes).html.script;
+        let expected = '<p>@ # ! * _ $ \\ / ~ ` + = . > < ^</p>'
+        expect(actual).toBe(expected);
+
+        // Some select escapes of blocks to ensure the regexes are working
+
+        const escapedDialog = `\\@McCLANE
+                    Yippie ki-yay! Action!`;
+        actual = fountain.parse(escapedDialog).html.script;
+        expected = '<p>@McCLANE<br />Yippie ki-yay! Action!</p>';
+        expect(actual).toBe(expected);
+
+        const escapedHeading = '\\.OPENING TITLES';
+        actual = fountain.parse(escapedHeading).html.script;
+        expected = '<p>.OPENING TITLES</p>';
+        expect(actual).toBe(expected);
+
+        const escapedLyrics = '\\~Willy Wonka! Willy Wonka! The amazing chocolatier!';
+        actual = fountain.parse(escapedLyrics).html.script;
+        expected = '<p>~Willy Wonka! Willy Wonka! The amazing chocolatier!</p>';
+        expect(actual).toBe(expected);
+
+        const escapedAction = `\\!TIRES SCREECHING...
+                            Joe is looking at his phone for the direction.`;
+        actual = fountain.parse(escapedAction).html.script;
+        expected = '<div class="dialogue"><h4>!TIRES SCREECHING...</h4><p>Joe is looking at his phone for the direction.</p></div>';
+        expect(actual).toBe(expected);
+
+        const escapedTransition = '\\>Burn to Pink.';
+        actual = fountain.parse(escapedTransition).html.script;
+        expected = '<p>>Burn to Pink.</p>';
         expect(actual).toBe(expected);
     });
 

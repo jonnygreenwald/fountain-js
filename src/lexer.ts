@@ -4,7 +4,7 @@ export type InlineTypes = 'note' | 'line_break'
                 | 'bold_italic_underline' | 'bold_underline' 
                 | 'italic_underline' | 'bold_italic'
                 | 'bold' | 'italic'
-                | 'underline';
+                | 'underline' | 'escape';
 
 export class Lexer {
     reconstruct(script: string) {
@@ -27,7 +27,9 @@ export class InlineLexer extends Lexer {
         bold_italic: '<span class="bold italic">$1</span>',
         bold: '<span class="bold">$1</span>',
         italic: '<span class="italic">$1</span>',
-        underline: '<span class="underline">$1</span>'
+        underline: '<span class="underline">$1</span>',
+
+        escape: '$1'
     };
 
     reconstruct(line: string) {
@@ -38,8 +40,7 @@ export class InlineLexer extends Lexer {
         const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
         line = line.replace(regex.note_inline, this.inline.note)
-            .replace(/\\\*/g, '[{{{star}}}]')                       // perserve escaped astersisks
-            .replace(/\\_/g, '[{{{underline}}}]');                  // perserve escaped underscores
+            .replace(regex.escape, '[{{{$&}}}]');                   // perserve escaped characters
 
         for (let style of styles) {
             match = regex[style];
@@ -50,8 +51,7 @@ export class InlineLexer extends Lexer {
         }
 
         return line.replace(/\n/g, this.inline.line_break)
-            .replace(/\[{{{star}}}]/g, '*')                         // replace escaped with asterisk
-            .replace(/\[{{{underline}}}]/g, '_')                    // replaec escaped with underscore
+            .replace(/\[{{{\\(.)}}}]/g, this.inline.escape)         // restore escaped chars to intended sequence
             .trim();
     }
 }

@@ -9,9 +9,9 @@ export type FountainTypes = 'title_page' | 'scene_heading'
                 | 'bold_italic_underline' | 'bold_underline' 
                 | 'italic_underline' | 'bold_italic'
                 | 'bold' | 'italic'
-                | 'underline' | 'splitter'
-                | 'cleaner' | 'standardizer'
-                | 'whitespacer';
+                | 'underline' | 'escape'
+                | 'splitter' | 'cleaner'
+                | 'standardizer' | 'whitespacer';
 
 export const regex: Record<FountainTypes, RegExp> = {
     title_page: /^((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
@@ -47,6 +47,8 @@ export const regex: Record<FountainTypes, RegExp> = {
     bold: /(?<!\\)\*{2}(?!\*)(?=\S)(.+?(?<=[^\s*]))(?<!\\)\*{2}/g,
     italic: /(?<!\\)\*(?!\*)(?=\S)(.+?(?<=[^\s*]))(?<!\\)\*/g,
     underline: /(?=\w)(?<![^\W_]_*)(?<!\\)_(?!_)(?<![^_])(?=\S)(?!<[^>]*>)(.+?(?<=\S)(?=_(?<=\w)(?![^\W_])))(?<!\\)(?<!<[^>]*>)_/g,
+
+    escape: /\\([@#!*_$~`+=.><^\\\/])/g,
 
     splitter: /\n{2,}/g,
     cleaner: /^\n+|\n+$/,
