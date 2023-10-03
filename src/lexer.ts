@@ -1,4 +1,4 @@
-import { regex } from './regex';
+import { rules } from './rules';
 import { escapeHTML } from './utilities';
 
 export type InlineTypes = 'note' | 'line_break'
@@ -9,10 +9,10 @@ export type InlineTypes = 'note' | 'line_break'
 
 export class Lexer {
     reconstruct(script: string) {
-        return script.replace(regex.boneyard, '\n$1\n')
-            .replace(regex.standardizer, '\n')
-            .replace(regex.cleaner, '')
-            .replace(regex.whitespacer, '');
+        return script.replace(rules.boneyard, '\n$1\n')
+            .replace(rules.standardizer, '\n')
+            .replace(rules.cleaner, '')
+            .replace(rules.whitespacer, '');
     }
 }
 
@@ -42,12 +42,12 @@ export class InlineLexer extends Lexer {
 
         line = escapeHTML(
                 line
-                    .replace(regex.note_inline, this.inline.note)
-                    .replace(regex.escape, '[{{{$&}}}]')                    // perserve escaped characters
+                    .replace(rules.note_inline, this.inline.note)
+                    .replace(rules.escape, '[{{{$&}}}]')                    // perserve escaped characters
         );
 
         for (let style of styles) {
-            match = regex[style];
+            match = rules[style];
 
             if (match.test(line)) {
                 line = line.replace(match, this.inline[style]);

@@ -13,7 +13,7 @@ export type FountainTypes = 'title_page' | 'scene_heading'
                 | 'splitter' | 'cleaner'
                 | 'standardizer' | 'whitespacer';
 
-export const regex: Record<FountainTypes, RegExp> = {
+export const rules: Record<FountainTypes, RegExp> = {
     title_page: /^((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
 
     scene_heading: /^((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+)|^\.(?!\.+)(\S.*)/i,
