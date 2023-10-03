@@ -70,7 +70,7 @@ describe('Fountain Markup Parser', () => {
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
             html: {
-                title_page: '<h1><span class="bold underline">BRICK & STEEL</span><br /><span class="bold underline">FULL RETIRED</span></h1><p class="credit">Written by</p><p class="authors">Stu Maschwitz</p><p class="source">Story by KTM</p><p class="draft-date">1/27/2012</p><p class="contact">Next Level Productions<br />1588 Mission Dr.<br />Solvang, CA 93463</p>',
+                title_page: '<h1><span class="bold underline">BRICK &amp; STEEL</span><br /><span class="bold underline">FULL RETIRED</span></h1><p class="credit">Written by</p><p class="authors">Stu Maschwitz</p><p class="source">Story by KTM</p><p class="draft-date">1/27/2012</p><p class="contact">Next Level Productions<br />1588 Mission Dr.<br />Solvang, CA 93463</p>',
                 script: ''
             },
             tokens: undefined
@@ -166,7 +166,7 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(text);
         let actual = output.html.script;
 
-        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
+        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK &amp; STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
         expect(actual).toBe(expected);
     });
@@ -352,7 +352,7 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(emphasisOutside);
         let actual = output.html.script;
 
-        let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been "crunching numbers."</p></div>`;
+        let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been &quot;crunching numbers.&quot;</p></div>`;
 
         expect(actual).toBe(expected);
     });
@@ -465,7 +465,7 @@ describe('Inline markdown lexer', () => {
                             _***hello_world***_ e___***bold italic underline***_`;
 
         actual = fountain.parse(variations).html.script;
-        expected = '<p>&_______<span class="bold italic underline">bold italic underline___</span>_______<br />'
+        expected = '<p>&amp;_______<span class="bold italic underline">bold italic underline___</span>_______<br />'
                     + '<span class="bold italic underline">_</span> <span class="underline">*******</span><br />'
                     + '<span class="bold italic underline">hello_world</span> e___<span class="bold italic">bold italic underline</span>_</p>';
         expect(actual).toBe(expected);
@@ -502,7 +502,7 @@ describe('Inline markdown lexer', () => {
                             _**hello_world**_ e___**bold underline**_`;
 
         actual = fountain.parse(variations).html.script;
-        expected = '<p>&_______<span class="bold underline">bold underline___</span>_______<br />'
+        expected = '<p>&amp;_______<span class="bold underline">bold underline___</span>_______<br />'
                     + '<span class="bold underline">_</span> <span class="underline">*****</span><br />'
                     + '<span class="bold underline">hello_world</span> e___<span class="bold">bold underline</span>_</p>';
         expect(actual).toBe(expected);
@@ -539,7 +539,7 @@ describe('Inline markdown lexer', () => {
                             _*hello_world*_ e___*italic underline*_`;
 
         actual = fountain.parse(variations).html.script;
-        expected = '<p>&_______<span class="italic underline">italic underline___</span>_______<br />'
+        expected = '<p>&amp;_______<span class="italic underline">italic underline___</span>_______<br />'
                     + '<span class="italic underline">_</span> <span class="underline">***</span><br />'
                     + '<span class="italic underline">hello_world</span> e___<span class="italic">italic underline</span>_</p>';
         expect(actual).toBe(expected);
@@ -627,13 +627,13 @@ describe('Inline markdown lexer', () => {
 
         const variations = `&____underline______ _hello_world_! e_nothing_
                             _*_ ___
-                            _underline <i>_ _</i> underline_`;
+                            _underline *_ _* underline_`;
 
         actual = fountain.parse(variations).html.script;
-        expected = '<p>&___<span class="underline">underline</span>_____ <span class="underline">hello_world</span>!'
+        expected = '<p>&amp;___<span class="underline">underline</span>_____ <span class="underline">hello_world</span>!'
                     + ' e_nothing_<br />'
                     + '<span class="underline">*</span> ___<br />'
-                    + '<span class="underline">underline <i>_ _</i> underline</span></p>';
+                    + '<span class="underline">underline <span class="italic">_ _</span> underline</span></p>';
         expect(actual).toBe(expected);
     });
 
@@ -748,7 +748,7 @@ describe('Inline markdown lexer', () => {
         const escaped = 'He typed \\_A and then B_, and closed the terminal.';
 
         let actual = fountain.parse(escapedItalic).html.script;
-        let expected = '<p>Steel hit complile, the screen said: "<span class="italic">_hello_world_</span>"</p>';
+        let expected = '<p>Steel hit complile, the screen said: &quot;<span class="italic">_hello_world_</span>&quot;</p>';
         expect(actual).toBe(expected);
 
         actual = fountain.parse(escaped).html.script;
@@ -757,10 +757,10 @@ describe('Inline markdown lexer', () => {
     });
 
     it('should escape all other Fountain tokens', () => {
-        const escapes = '\\@ \\# \\! \\* \\_ \\$ \\\\ \\/ \\~ \\` \\+ \\= \\. \\> \\< \\^';
+        const escapes = '\\@ \\# \\! \\* \\_ \\$ \\\\ \\/ \\~ \\` \\+ \\= \\. \\> \\<';
 
         let actual = fountain.parse(escapes).html.script;
-        let expected = '<p>@ # ! * _ $ \\ / ~ ` + = . > < ^</p>'
+        let expected = '<p>@ # ! * _ $ \\ / ~ ` + = . &gt; &lt;</p>'
         expect(actual).toBe(expected);
 
         // Some select escapes of blocks to ensure the regexes are working
@@ -789,7 +789,16 @@ describe('Inline markdown lexer', () => {
 
         const escapedTransition = '\\>Burn to Pink.';
         actual = fountain.parse(escapedTransition).html.script;
-        expected = '<p>>Burn to Pink.</p>';
+        expected = '<p>&gt;Burn to Pink.</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape unsafe HTML characters', () => {
+        const unsafe = '\\> \\< & "';
+
+        let actual = fountain.parse(unsafe).html.script;
+        let expected = '<p>&gt; &lt; &amp; &quot;</p>'
+
         expect(actual).toBe(expected);
     });
 

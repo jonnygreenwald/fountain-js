@@ -1,4 +1,5 @@
 import { regex } from './regex';
+import { escapeHTML } from './utilities';
 
 export type InlineTypes = 'note' | 'line_break'
                 | 'bold_italic_underline' | 'bold_underline' 
@@ -39,8 +40,11 @@ export class InlineLexer extends Lexer {
         let match: RegExp;
         const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
-        line = line.replace(regex.note_inline, this.inline.note)
-            .replace(regex.escape, '[{{{$&}}}]');                   // perserve escaped characters
+        line = escapeHTML(
+                line
+                    .replace(regex.note_inline, this.inline.note)
+                    .replace(regex.escape, '[{{{$&}}}]')                    // perserve escaped characters
+        );
 
         for (let style of styles) {
             match = regex[style];
@@ -50,8 +54,9 @@ export class InlineLexer extends Lexer {
             }
         }
 
-        return line.replace(/\n/g, this.inline.line_break)
-            .replace(/\[{{{\\(.)}}}]/g, this.inline.escape)         // restore escaped chars to intended sequence
-            .trim();
+        return line
+                .replace(/\n/g, this.inline.line_break)
+                .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)         // restore escaped chars to intended sequence
+                .trim();
     }
 }
