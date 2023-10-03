@@ -397,7 +397,3 @@ export class ActionToken implements Token {
     //     return regex.action.test(line);
     // }
 }
-
-function isTooShort(str: string) {
-    return str.indexOf('  ') === str.length - 2;
-}
