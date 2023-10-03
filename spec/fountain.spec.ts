@@ -70,7 +70,7 @@ describe('Fountain Markup Parser', () => {
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
             html: {
-                title_page: '<h1><span class="bold underline">BRICK & STEEL</span><br /><span class="bold underline">FULL RETIRED</span></h1><p class="credit">Written by</p><p class="authors">Stu Maschwitz</p><p class="source">Story by KTM</p><p class="draft-date">1/27/2012</p><p class="contact">Next Level Productions<br />1588 Mission Dr.<br />Solvang, CA 93463</p>',
+                title_page: '<h1><span class="bold underline">BRICK &amp; STEEL</span><br /><span class="bold underline">FULL RETIRED</span></h1><p class="credit">Written by</p><p class="authors">Stu Maschwitz</p><p class="source">Story by KTM</p><p class="draft-date">1/27/2012</p><p class="contact">Next Level Productions<br />1588 Mission Dr.<br />Solvang, CA 93463</p>',
                 script: ''
             },
             tokens: undefined
@@ -166,12 +166,23 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(text);
         let actual = output.html.script;
 
-        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK & STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
+        let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK &amp; STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
         expect(actual).toBe(expected);
     });
 
-    it ('should strip  leading/trailing spaces from centered text', () => {
+    it('should parse forced transitions', () => {
+        const transition = '> Burn to Pink.';
+
+        let output: Script = fountain.parse(transition);
+        let actual = output.html.script;
+
+        let expected = '<h2>Burn to Pink.</h2>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should strip  leading/trailing spaces from centered text', () => {
         const text = `>     center line 1     <
                       >     center line 2     <`;
 
@@ -341,7 +352,7 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(emphasisOutside);
         let actual = output.html.script;
 
-        let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been "crunching numbers."</p></div>`;
+        let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been &quot;crunching numbers.&quot;</p></div>`;
 
         expect(actual).toBe(expected);
     });
@@ -442,83 +453,187 @@ describe('Inline markdown lexer', () => {
         fountain = new Fountain();
     });
 
-    it('should parse bold italics underline', () => {
-        const inlineText = '_***bold italics underline***_';
-        let output: Script = fountain.parse(inlineText);
+    it('should parse bold italic underline and variations', () => {
+        const inlineText = '_***bold italic underline***_';
 
-        let actual = output.html.script;
-        let expected = '<p><span class="bold italic underline">bold italics underline</span></p>';
+        let actual = fountain.parse(inlineText).html.script;
+        let expected = '<p><span class="bold italic underline">bold italic underline</span></p>';
+        expect(actual).toBe(expected);
+
+        const variations = `&________***bold italic underline___***________
+                            _***_***_ _*******_
+                            _***hello_world***_ e___***bold italic underline***_`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>&amp;_______<span class="bold italic underline">bold italic underline___</span>_______<br />'
+                    + '<span class="bold italic underline">_</span> <span class="underline">*******</span><br />'
+                    + '<span class="bold italic underline">hello_world</span> e___<span class="bold italic">bold italic underline</span>_</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse alternative bold italic underline and variations', () => {
+        const inlineText = '***_bold italic underline_***';
+
+        let actual = fountain.parse(inlineText).html.script;
+        let expected = '<p><span class="bold italic underline">bold italic underline</span></p>';
+        expect(actual).toBe(expected);
+
+        const variations = `e********_bold italic underline?_***
+                            ***_*_***
+                            ***_hello * world_***!`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e*****<span class="bold italic underline">bold italic underline?</span><br />'
+                    + '<span class="bold italic underline">*</span><br />'
+                    + '<span class="bold italic underline">hello * world</span>!</p>';
 
         expect(actual).toBe(expected);
     });
 
-    it('should parse bold underline', () => {
+    it('should parse bold underline and variations', () => {
         const inlineText = '_**bold underline**_';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="bold underline">bold underline</span></p>';
+        expect(actual).toBe(expected);
+
+        const variations = `&________**bold underline___**________
+                            _**_**_ _*****_
+                            _**hello_world**_ e___**bold underline**_`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>&amp;_______<span class="bold underline">bold underline___</span>_______<br />'
+                    + '<span class="bold underline">_</span> <span class="underline">*****</span><br />'
+                    + '<span class="bold underline">hello_world</span> e___<span class="bold">bold underline</span>_</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse alternative bold underline and variations', () => {
+        const inlineText = '**_bold underline_**';
+
+        let actual = fountain.parse(inlineText).html.script;
+        let expected = '<p><span class="bold underline">bold underline</span></p>';
+        expect(actual).toBe(expected);
+
+        const variations = `e*******_bold underline?_**
+                            **_*_**
+                            **_hello * world_**!`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e*****<span class="bold underline">bold underline?</span><br />'
+                    + '<span class="bold underline">*</span><br />'
+                    + '<span class="bold underline">hello * world</span>!</p>';
 
         expect(actual).toBe(expected);
     });
 
-    it('should parse italic underline', () => {
+    it('should parse italic underline and variations', () => {
         const inlineText = '_*italic underline*_';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="italic underline">italic underline</span></p>';
+        expect(actual).toBe(expected);
 
+        const variations = `&________*italic underline___*________
+                            _*_*_ _***_
+                            _*hello_world*_ e___*italic underline*_`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>&amp;_______<span class="italic underline">italic underline___</span>_______<br />'
+                    + '<span class="italic underline">_</span> <span class="underline">***</span><br />'
+                    + '<span class="italic underline">hello_world</span> e___<span class="italic">italic underline</span>_</p>';
         expect(actual).toBe(expected);
     });
 
-    it('should parse an alternative italic underline', () => {
+    it('should parse alternative italic underline and variations', () => {
         const inlineText = '*_italic underline_*';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="italic underline">italic underline</span></p>';
+        expect(actual).toBe(expected);
+
+        const variations = `e******_italic underline?_*
+                            *_*_*
+                            *_hello * world_*!`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e*****<span class="italic underline">italic underline?</span><br />'
+                    + '<span class="italic underline">*</span><br />'
+                    + '<span class="italic underline">hello * world</span>!</p>';
 
         expect(actual).toBe(expected);
     });
 
-    it('should parse bold italics', () => {
-        const inlineText = '***bold italics***';
-        let output: Script = fountain.parse(inlineText);
+    it('should parse bold italic and variations', () => {
+        const inlineText = '***bold italic***';
 
-        let actual = output.html.script;
-        let expected = '<p><span class="bold italic">bold italics</span></p>';
+        let actual = fountain.parse(inlineText).html.script;
+        let expected = '<p><span class="bold italic">bold italic</span></p>';
+        expect(actual).toBe(expected);
 
+        const variations = `e*********bold italic?***
+                            ***_*** ******
+                            ***hello * world*** ***bold_italic***`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e******<span class="bold italic">bold italic?</span><br />'
+                    + '<span class="bold italic">_</span> ******<br />'
+                    + '<span class="bold italic">hello * world</span> <span class="bold italic">bold_italic</span></p>';
         expect(actual).toBe(expected);
     });
 
-    it('should parse bold', () => {
+    it('should parse bold and variations', () => {
         const inlineText = '**bold**';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="bold">bold</span></p>';
+        expect(actual).toBe(expected);
 
+        const variations = `e********bold**.
+                            **_** *****
+                            **hello * world** **$bold_***`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e******<span class="bold">bold</span>.<br />'
+                    + '<span class="bold">_</span> *****<br />'
+                    + '<span class="bold">hello * world</span> <span class="bold">$bold_</span>*</p>';
         expect(actual).toBe(expected);
     });
 
-    it('should parse italic', () => {
+    it('should parse italic and variations', () => {
         const inlineText = '*italics*';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="italic">italics</span></p>';
+        expect(actual).toBe(expected);
 
+        const variations = `e******italic*?
+                            *_* ***
+                            *hello * world* %*_italic*`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>e*****<span class="italic">italic</span>?<br />'
+                    + '<span class="italic">_</span> ***<br />'
+                    + '<span class="italic">hello * world</span> %<span class="italic">_italic</span></p>';
         expect(actual).toBe(expected);
     });
 
-    it('should parse underline', () => {
+    it('should parse underline and variations', () => {
         const inlineText = '_underline_';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="underline">underline</span></p>';
+        expect(actual).toBe(expected);
 
+        const variations = `&____underline______ _hello_world_! e_nothing_
+                            _*_ ___
+                            _underline *_ _* underline_`;
+
+        actual = fountain.parse(variations).html.script;
+        expected = '<p>&amp;___<span class="underline">underline</span>_____ <span class="underline">hello_world</span>!'
+                    + ' e_nothing_<br />'
+                    + '<span class="underline">*</span> ___<br />'
+                    + '<span class="underline">underline <span class="italic">_ _</span> underline</span></p>';
         expect(actual).toBe(expected);
     });
 
@@ -561,6 +676,144 @@ describe('Inline markdown lexer', () => {
         expected = '<div class="dialogue"><h4><span class="bold italic">MR. SELF DESTRUCT</span></h4><p>And I control you...</p></div>';
         expect(actual).toBe(expected);
     });
+
+    it('should preserve inline HTML', () => {
+        const underlineItalic = '_underline *italic* underline_';
+        const boldItalic = '*italic **bold** italic*';
+        const underlineBoldItalic = '_underline *italic **bold** italic* underline_';
+        const italicBoldItalic = '****bold italic and italic****';
+        const boldBoldItalic = '*****bold italic and bold*****';
+        const boldItalicBoldItalic = '******bold italic, italic and bold******';
+
+        let actual = fountain.parse(underlineItalic).html.script;
+        let expected = '<p><span class="underline">underline <span class="italic">italic</span> underline</span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(boldItalic).html.script;
+        expected = '<p><span class="italic">italic <span class="bold">bold</span> italic</span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(underlineBoldItalic).html.script;
+        expected = '<p><span class="underline">underline <span class="italic">italic <span class="bold">bold</span> italic</span> underline</span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(italicBoldItalic).html.script;
+        expected = '<p><span class="italic"><span class="bold italic">bold italic and italic</span></span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(boldBoldItalic).html.script;
+        expected = '<p><span class="bold"><span class="bold italic">bold italic and bold</span></span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(boldItalicBoldItalic).html.script;
+        expected = '<p><span class="italic"><span class="bold"><span class="bold italic">bold italic, italic and bold</span></span></span></p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should ignore non-flanking inline markdown', () => {
+        const inlineText = `_ underline_ _underline _ * italic* *italic *
+                            ** bold** **bold **
+                            *** bold italics*** ***bold italics ***
+                            _*** bold italics underline***_ _***bold italics underline ***_
+                            _** bold underline**_ _**bold underline **_
+                            _* italic underline*_ _*italic underline *_`;
+        let output: Script = fountain.parse(inlineText);
+
+        let actual = output.html.script;
+        let expected = '<p>_ underline_ _underline _ * italic* *italic *<br />'
+                       + '** bold** **bold **<br />'
+                       + '*** bold italics*** ***bold italics ***<br />'
+                       + '<span class="underline">*** bold italics underline<span class="bold italic">_ _</span>bold italics underline ***</span><br />'
+                       + '<span class="underline">** bold underline<span class="bold">_ _</span>bold underline **</span><br />'
+                       + '<span class="underline">* italic underline<span class="italic">_ _</span>italic underline *</span></p>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape asterisks', () => {
+        const escapedBold = 'Steel enters the code on the keypad: **\\*9765\\***';
+        const escaped = 'He dialed \\*69 and then *23, and then hung up.';
+
+        let actual = fountain.parse(escapedBold).html.script;
+        let expected = '<p>Steel enters the code on the keypad: <span class="bold">*9765*</span></p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(escaped).html.script;
+        expected = '<p>He dialed *69 and then *23, and then hung up.</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape underscores', () => {
+        const escapedItalic = 'Steel hit complile, the screen said: "*\\_hello_world_*"';
+        const escaped = 'He typed \\_A and then B_, and closed the terminal.';
+
+        let actual = fountain.parse(escapedItalic).html.script;
+        let expected = '<p>Steel hit complile, the screen said: &quot;<span class="italic">_hello_world_</span>&quot;</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(escaped).html.script;
+        expected = '<p>He typed _A and then B_, and closed the terminal.</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape all other Fountain tokens', () => {
+        const escapes = '\\@ \\# \\! \\* \\_ \\$ \\\\ \\/ \\~ \\` \\+ \\= \\. \\> \\<';
+
+        let actual = fountain.parse(escapes).html.script;
+        let expected = '<p>@ # ! * _ $ \\ / ~ ` + = . &gt; &lt;</p>'
+        expect(actual).toBe(expected);
+
+        // Some select escapes of blocks to ensure the regexes are working
+
+        const escapedDialog = `\\@McCLANE
+                    Yippie ki-yay! Action!`;
+        actual = fountain.parse(escapedDialog).html.script;
+        expected = '<p>@McCLANE<br />Yippie ki-yay! Action!</p>';
+        expect(actual).toBe(expected);
+
+        const escapedHeading = '\\.OPENING TITLES';
+        actual = fountain.parse(escapedHeading).html.script;
+        expected = '<p>.OPENING TITLES</p>';
+        expect(actual).toBe(expected);
+
+        const escapedLyrics = '\\~Willy Wonka! Willy Wonka! The amazing chocolatier!';
+        actual = fountain.parse(escapedLyrics).html.script;
+        expected = '<p>~Willy Wonka! Willy Wonka! The amazing chocolatier!</p>';
+        expect(actual).toBe(expected);
+
+        const escapedAction = `\\!TIRES SCREECHING...
+                            Joe is looking at his phone for the direction.`;
+        actual = fountain.parse(escapedAction).html.script;
+        expected = '<div class="dialogue"><h4>!TIRES SCREECHING...</h4><p>Joe is looking at his phone for the direction.</p></div>';
+        expect(actual).toBe(expected);
+
+        const escapedTransition = '\\>Burn to Pink.';
+        actual = fountain.parse(escapedTransition).html.script;
+        expected = '<p>&gt;Burn to Pink.</p>';
+        expect(actual).toBe(expected);
+    });
+
+    it('should escape unsafe HTML characters', () => {
+        const unsafe = '\\> \\< & "';
+
+        let actual = fountain.parse(unsafe).html.script;
+        let expected = '<p>&gt; &lt; &amp; &quot;</p>'
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should not carry emphasis over line breaks per spec', () => {
+        const action = `Murtaugh, springing hell bent for leather -- and folks,
+                        grab your hats … because just then, a _BELL COBRA
+                        HELICOPTER_ crests the edge of the bluff.`;
+
+        let output: Script = fountain.parse(action);
+
+        let actual = output.html.script;
+        let expected = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a _BELL COBRA<br />HELICOPTER_ crests the edge of the bluff.</p>'
+
+        expect(actual).toBe(expected);
+    });
 });
 
 describe('Additional compatibility tests', () => {
@@ -582,21 +835,21 @@ describe('Additional compatibility tests', () => {
     });
 
     it('should not mutate token text when converting to HTML', () => {
-        const action = `Murtaugh, springing hell bent for leather -- and folks,
-                        grab your hats … because just then, a _BELL COBRA
-                        HELICOPTER_ crests the edge of the bluff.`;
+        const action = `Murtaugh, *springing*, hell bent for leather -- and folks,
+                        grab your hats … because just then, a BELL COBRA
+                        HELICOPTER crests the edge of the bluff.`;
 
         let output: Script = fountain.parse(action, true);
 
         let expectedTokens = [
             new ActionToken(
-                'Murtaugh, springing hell bent for leather -- and folks,\n'
-                + 'grab your hats … because just then, a _BELL COBRA\n'
-                + 'HELICOPTER_ crests the edge of the bluff.'
+                'Murtaugh, *springing*, hell bent for leather -- and folks,\n'
+                + 'grab your hats … because just then, a BELL COBRA\n'
+                + 'HELICOPTER crests the edge of the bluff.'
             )
         ] as Token[];
 
-        let expectedHTML = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a <span class="underline">BELL COBRA<br />HELICOPTER</span> crests the edge of the bluff.</p>'
+        let expectedHTML = '<p>Murtaugh, <span class="italic">springing</span>, hell bent for leather -- and folks,<br />grab your hats … because just then, a BELL COBRA<br />HELICOPTER crests the edge of the bluff.</p>'
 
         expect(output.tokens).toEqual(expectedTokens);
         expect(output.html.script).toBe(expectedHTML);

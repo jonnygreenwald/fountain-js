@@ -3,6 +3,8 @@ import { Token } from './token';
 import { Scanner } from './scanner';
 import { InlineLexer } from './lexer';
 
+import { unEscapeHTML } from './utilities';
+
 export interface Script {
     title?: string,
     html: {
@@ -40,9 +42,11 @@ export class Fountain {
             const titleToken = this.tokens.find(token => token.type === 'title');
             if (titleToken) {
                 // lexes any inlines on the title then removes any HTML / line breaks
-                title = this.inlineLex.reconstruct(titleToken.text)
-                            .replace('<br />', ' ')
-                            .replace(/<(?:.|\n)*?>/g, '');
+                title = unEscapeHTML(
+                            this.inlineLex.reconstruct(titleToken.text)
+                                .replace('<br />', ' ')
+                                .replace(/<(?:.|\n)*?>/g, '')
+                );
             }
 
             return {

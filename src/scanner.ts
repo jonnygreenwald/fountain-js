@@ -1,4 +1,4 @@
-import { regex } from './regex';
+import { rules } from './rules';
 import { 
     ActionToken,
     BoneyardToken,
@@ -23,7 +23,7 @@ export class Scanner {
 
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
-        const source: string[] = new Lexer().reconstruct(script).split(regex.splitter).reverse();
+        const source: string[] = new Lexer().reconstruct(script).split(rules.splitter).reverse();
 
         const tokens: Token[] = source.reduce((previous: Token[], line: string) => {
             /** title page */

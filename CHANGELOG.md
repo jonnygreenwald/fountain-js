@@ -6,6 +6,25 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- Improve rendering per spec like stripping sections and synopses since these should not be rendered.
+- Return more explicit null values and enable strict null checking.
+- Add line numbers to tokens.
+- Allow any title field attributes.
+- Better title page parsing in general.
+
+## [1.1.4] - 2023-10-01
+
+### Added
+
+- Tokens ``@ # ! $ \ / ~ ` + = . > <`` are all escapable in addition to `*` and `_`. Additionally, all escapes are also respected when used to break the tokens' intended function.
+- Symbols `< > & "` now escape to their HTML-safe variants.
+- Types have been added to the regex patterns and the regex objects are now typed as a `Record<T, U>` for the lexers. These types have been included for import and manipulation as desired.
+
+### Changed
+
+- Italic, bold, underline and all combinations now behave more in line, but not perfectly, with [Commonmark Specifications](https://spec.commonmark.org/0.30/#emphasis-and-strong-emphasis) for emphasis. This includes preserving HTML nesting of other forms of emphasis as best as possible.
+  - More work is needed to have it behave exactly the same but for the current limitations, it is much closer and behaves more like one would expect particularly when it comes to non-flanking delimiters.
+
 ## [1.1.3] - 2023-09-24
 
 ### Fixed

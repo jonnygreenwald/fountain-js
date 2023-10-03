@@ -1,4 +1,4 @@
-import { regex } from './regex';
+import { rules } from './rules';
 
 export interface Token {
     type: string,
@@ -21,7 +21,7 @@ export class TitlePageBlock implements Block {
     readonly tokens: TitlePageToken[] = [];
 
     constructor(line: string) {
-        const match = line.replace(regex.title_page, '\n$1').split(regex.splitter).reverse();
+        const match = line.replace(rules.title_page, '\n$1').split(rules.splitter).reverse();
         this.tokens = match.reduce(
             (previous, item) => new TitlePageToken(item).addTo(previous)
         , []);
@@ -32,7 +32,7 @@ export class TitlePageBlock implements Block {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.title_page.test(line);
+        return rules.title_page.test(line);
     }
 }
 
@@ -42,7 +42,7 @@ export class TitlePageToken implements Token {
     readonly text: string;
 
     constructor(item: string) {
-        const pair = item.replace(regex.cleaner, '').split(/\:\n*/);
+        const pair = item.replace(rules.cleaner, '').split(/\:\n*/);
         this.type = pair[0].trim().toLowerCase().replace(' ', '_');
         this.text = pair[1].trim();
     }
@@ -58,13 +58,13 @@ export class SceneHeadingToken implements Token {
     readonly scene_number: string;
 
     constructor(line: string) {
-        const match = line.match(regex.scene_heading);
+        const match = line.match(rules.scene_heading);
         this.text = match[1] || match[2];
 
-        const meta: RegExpMatchArray = this.text.match(regex.scene_number);
+        const meta: RegExpMatchArray = this.text.match(rules.scene_number);
         if (meta) {
             this.scene_number = meta[2];
-            this.text = this.text.replace(regex.scene_number, '');
+            this.text = this.text.replace(rules.scene_number, '');
         }
     }
 
@@ -73,7 +73,7 @@ export class SceneHeadingToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.scene_heading.test(line);
+        return rules.scene_heading.test(line);
     }
 }
 
@@ -82,7 +82,7 @@ export class CenteredToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        const match = line.match(regex.centered);
+        const match = line.match(rules.centered);
         this.text = match[0].replace(/ *[><] */g, '');
     }
 
@@ -91,7 +91,7 @@ export class CenteredToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.centered.test(line);
+        return rules.centered.test(line);
     }
 }
 
@@ -100,7 +100,7 @@ export class TransitionToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        const match = line.match(regex.transition);
+        const match = line.match(rules.transition);
         this.text = match[1] || match[2];
     }
 
@@ -109,7 +109,7 @@ export class TransitionToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.transition.test(line);
+        return rules.transition.test(line);
     }
 }
 
@@ -119,7 +119,7 @@ export class DialogueBlock implements Block {
     readonly too_short: boolean;
 
     constructor(line: string, dual: boolean) {
-        const match = line.match(regex.dialogue);
+        const match = line.match(rules.dialogue);
 
         let name = match[1];
 
@@ -139,10 +139,10 @@ export class DialogueBlock implements Block {
             if (!text.length) {
                 return p;
             }
-            if (regex.parenthetical.test(text)) {
+            if (rules.parenthetical.test(text)) {
                 return [...p, new ParentheticalToken(text)];
             }
-            if (regex.lyrics.test(text)) {
+            if (rules.lyrics.test(text)) {
                 if (previousToken.type === 'lyrics') {
                     p[lastIndex].text = 
                                 `${previousToken.text}\n${text.replace(/^~/, '')}`;
@@ -183,7 +183,7 @@ export class DialogueBlock implements Block {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.dialogue.test(line);
+        return rules.dialogue.test(line);
     }
 }
 
@@ -276,7 +276,7 @@ export class LyricsToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.lyrics.test(line);
+        return rules.lyrics.test(line);
     }
 }
 
@@ -286,7 +286,7 @@ export class SectionToken implements Token {
     readonly depth: number;
 
     constructor(line: string) {
-        const match = line.match(regex.section);
+        const match = line.match(rules.section);
         this.text = match[2];
         this.depth = match[1].length;
     }
@@ -296,7 +296,7 @@ export class SectionToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.section.test(line);
+        return rules.section.test(line);
     }
 }
 
@@ -305,7 +305,7 @@ export class SynopsisToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        const match = line.match(regex.synopsis);
+        const match = line.match(rules.synopsis);
         this.text = match[1];
     }
 
@@ -314,7 +314,7 @@ export class SynopsisToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.synopsis.test(line);
+        return rules.synopsis.test(line);
     }
 }
 
@@ -323,7 +323,7 @@ export class NoteToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        const match = line.match(regex.note);
+        const match = line.match(rules.note);
         this.text = match[1];
     }
 
@@ -332,7 +332,7 @@ export class NoteToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.note.test(line);
+        return rules.note.test(line);
     }
 }
 
@@ -341,7 +341,7 @@ export class BoneyardToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        const match = line.match(regex.boneyard);
+        const match = line.match(rules.boneyard);
         this.type = match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end';
     }
 
@@ -350,7 +350,7 @@ export class BoneyardToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.boneyard.test(line);
+        return rules.boneyard.test(line);
     }
 }
 
@@ -362,7 +362,7 @@ export class PageBreakToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.page_break.test(line);
+        return rules.page_break.test(line);
     }
 }
 
@@ -375,7 +375,7 @@ export class LineBreakToken implements Token {
     }
 
     static matchedBy(line: string): boolean {
-        return regex.line_break.test(line);
+        return rules.line_break.test(line);
     }
 }
 
@@ -396,8 +396,4 @@ export class ActionToken implements Token {
     // static matchedBy(line: string): boolean {
     //     return regex.action.test(line);
     // }
-}
-
-function isTooShort(str: string) {
-    return str.indexOf('  ') === str.length - 2;
 }
