@@ -30,7 +30,7 @@ export const rules: Record<FountainTypes, RegExp> = {
     lyrics: /^~(?! ).+(?:\n~(?! ).+)*/,
 
     section: /^(#+) *(.*)/,
-    synopsis: /^(?:\=(?!\=+) *)(.*)/,
+    synopsis: /^=(?!=+) *(.*)/,
 
     note: /^\[{2}(?!\[+)(.+)]{2}(?!\[+)$/,
     note_inline: /\[{2}(?!\[+)([\s\S]+?)]{2}(?!\[+)/g,

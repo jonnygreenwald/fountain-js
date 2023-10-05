@@ -407,6 +407,7 @@ describe('Fountain Markup Parser', () => {
 
         let output: Script = fountain.parse(extremeEmphasis);
         let actual = output.html.script;
+
         let expected = `<div class="dialogue"><h4>TOPHER</h4><p class="parenthetical"><span class="italic">(griping)</span></p><p class="parenthetical"><span class="bold">(complaining)</span></p><p class="parenthetical"><span class="underline">(grousing)</span></p><p class="parenthetical"><span class="bold italic">(howling)</span></p><p class="parenthetical"><span class="italic underline">(screaming)</span></p><p class="parenthetical"><span class="bold underline">(clangorously)</span></p><p class="parenthetical"><span class="bold italic underline">(ear-splitting noises)</span></p><p>I'm upset.</p></div>`;
 
         expect(actual).toBe(expected);
@@ -432,7 +433,7 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(notes);
         let actual = output.html.script;
 
-        const expected = '<!-- Add an additional beat here -->';
+        let expected = '<!-- Add an additional beat here -->';
 
         expect(actual).toBe(expected);
     });
@@ -444,8 +445,58 @@ describe('Fountain Markup Parser', () => {
         let output: Script = fountain.parse(lyrics);
         let actual = output.html.script;
 
-        const expected = '<p class="lyrics">Willy Wonka! Willy Wonka! The amazing chocolatier!<br />Willy Wonka! Willy Wonka! Everybody give a cheer!</p>';
+        let expected = '<p class="lyrics">Willy Wonka! Willy Wonka! The amazing chocolatier!<br />Willy Wonka! Willy Wonka! Everybody give a cheer!</p>';
 
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse sections by removing them from the output', () => {
+        const section = `CUT TO:
+
+        # This is a Section
+
+        INT. PALACE HALLWAY - NIGHT`;
+
+        const manySections = `# Act
+
+        ## Sequence
+
+        ### Scene
+
+        ## Another Sequence
+
+        # Another Act`;
+
+        let actual = fountain.parse(section).html.script;
+        let expected = '<h2>CUT TO:</h2><h3>INT. PALACE HALLWAY - NIGHT</h3>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(manySections).html.script;
+        expected = '';
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse synopses by removing them from the output', () => {
+        const synopses = `.BROADCAST STUDIO - AFTERNOON
+
+                    = The Inciting Incident -- Jacorey and Arthur must save the studio during a power outage.`;
+        
+        const sectionAndSynopses = `# ACT I
+
+            = Set up the characters and the story.
+
+            EXT. BRICK'S PATIO - DAY
+
+            = This scene sets up Brick & Steel's new life as retirees. Warm sun, cold beer, and absolutely nothing to do.
+
+            A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something.`;
+
+        let actual = fountain.parse(synopses).html.script;
+        let expected = '<h3>BROADCAST STUDIO - AFTERNOON</h3>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(sectionAndSynopses).html.script;
+        expected = "<h3>EXT. BRICK'S PATIO - DAY</h3><p>A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something.</p>";
         expect(actual).toBe(expected);
     });
 });

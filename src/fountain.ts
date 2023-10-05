@@ -88,8 +88,8 @@ export class Fountain {
             case 'dialogue_end': return `</div>`;
             case 'dual_dialogue_end': return `</div>`;
 
-            case 'section': return `<p class="section" data-depth="${token.depth}">${lexedText}</p>`;
-            case 'synopsis': return `<p class="synopsis">${lexedText}</p>`;
+            case 'section': return;
+            case 'synopsis': return;
 
             case 'note': return `<!-- ${lexedText} -->`;
             case 'boneyard_begin': return `<!-- `;
