@@ -135,6 +135,10 @@ describe('Fountain Markup Parser', () => {
         expect(alphaNumToken).toEqual([ 
             new SceneHeadingToken('INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#')
         ]);
+
+        let actual = fountain.parse(alphaNumHeading).html.script;
+        let expected = '<h3 id="110.A">INT/EXT. HOUSE - DAY - FLASHBACK (1944)</h3>';
+        expect(actual).toBe(expected);
     });
 
     it('should parse forced, single-aplhanumeric scene headings', () => {
