@@ -34,10 +34,6 @@ export class InlineLexer extends Lexer {
     };
 
     reconstruct(line: string) {
-        if (!line) 
-            return;
-
-        let match: RegExp;
         const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
 
         line = escapeHTML(
@@ -47,16 +43,16 @@ export class InlineLexer extends Lexer {
         );
 
         for (let style of styles) {
-            match = rules[style];
+            const rule: RegExp = rules[style];
 
-            if (match.test(line)) {
-                line = line.replace(match, this.inline[style]);
+            if (rule.test(line)) {
+                line = line.replace(rule, this.inline[style]);
             }
         }
 
         return line
                 .replace(/\n/g, this.inline.line_break)
-                .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)         // restore escaped chars to intended sequence
+                .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)       // restore escaped chars to intended sequence
                 .trim();
     }
 }

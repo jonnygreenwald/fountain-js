@@ -5,12 +5,12 @@ import { InlineLexer } from './lexer';
 import { unEscapeHTML } from './utilities';
 
 export interface Script {
-    title?: string,
+    title: string,
     html: {
         title_page: string,
         script: string
     },
-    tokens?: Token[]
+    tokens: Token[]
 }
 
 export class Fountain {
@@ -33,12 +33,12 @@ export class Fountain {
             );
 
         try {
-            let title: string;
+            let title: string = '';
 
             this.tokens = this.scanner.tokenize(script);
 
             const titleToken = this.tokens.find(token => token.type === 'title');
-            if (titleToken) {
+            if (titleToken?.text) {
                 // lexes any inlines on the title then removes any HTML / line breaks
                 title = unEscapeHTML(
                             this.inlineLex.reconstruct(titleToken.text)
@@ -50,10 +50,12 @@ export class Fountain {
             return {
                 title,
                 html: {
-                    title_page: this.tokens.filter(token => token.is_title).map(token => this.to_html(token)).join(''),
-                    script: this.tokens.filter(token => !token.is_title).map(token => this.to_html(token)).join('')
+                    title_page: this.tokens.filter(token => token.is_title)
+                                    .map(token => this.to_html(token)).join(''),
+                    script: this.tokens.filter(token => !token.is_title)
+                                    .map(token => this.to_html(token)).join('')
                 },
-                tokens: getTokens ? this.tokens : undefined
+                tokens: getTokens ? this.tokens : []
             }
         } catch (error) {
             error.message +=
@@ -63,7 +65,11 @@ export class Fountain {
     }
 
     to_html(token: Token) {
-        let lexedText = this.inlineLex.reconstruct(token.text);
+        let lexedText: string | undefined;
+
+        if (token?.text) {
+            lexedText = this.inlineLex.reconstruct(token.text);
+        }
 
         switch (token.type) {
             case 'title': return `<h1>${lexedText}</h1>`;

@@ -61,12 +61,12 @@ Fountain-js is natively written in Typescript, therefore a `Script` interface is
 
 ```typescript
 interface Script {
-    title?: string,
+    title: string,
     html: {
         title_page: string,
         script: string
     },
-    tokens?: Token[]
+    tokens: Token[]
 }
 ```
 
