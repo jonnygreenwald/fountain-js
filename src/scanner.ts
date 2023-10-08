@@ -14,7 +14,7 @@ import {
     TitlePageBlock,
     Token,
     TransitionToken
- } from './token';
+} from './token';
 
 import { Lexer } from './lexer';
 
@@ -78,8 +78,8 @@ export class Scanner {
             }
             // everything else is action -- remove `!` for forced action
             return new ActionToken(line).addTo(previous);
-        }, [])
-        
+        }, []);
+
         return tokens.reverse();
     }
 }

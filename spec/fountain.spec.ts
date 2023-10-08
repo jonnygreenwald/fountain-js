@@ -15,12 +15,12 @@ describe('Fountain Markup Parser', () => {
     it('should return tokens when true', () => {
         const action = "It was a cold and clear morning.";
 
-        let actual: Script = fountain.parse(action, true);
+        let actual = fountain.parse(action, true);
         let expected: Script = {
-            title: undefined,
+            title: '',
             html: {
                 title_page: '',
-                script: "<p>It was a cold and clear morning.</p>"
+                script: '<p>It was a cold and clear morning.</p>'
             },
             tokens: [
                 new ActionToken('It was a cold and clear morning.')
@@ -33,8 +33,8 @@ describe('Fountain Markup Parser', () => {
     it('should parse forced action', () => {
         const action = '!William enters -- and there stands Anna.';
 
-        let actual: Token[] = fountain.parse(action, true).tokens || [];
-        let expected: Token[] = [
+        let actual = fountain.parse(action, true).tokens;
+        let expected = [
             new ActionToken('William enters -- and there stands Anna.')
         ];
 
@@ -45,8 +45,8 @@ describe('Fountain Markup Parser', () => {
         const action = `!TIRES SCREECHING...
                     Joe is looking at his phone for the direction.`;
 
-        let actual: Token[] = fountain.parse(action, true).tokens || [];
-        let expected: Token[] = [
+        let actual = fountain.parse(action, true).tokens;
+        let expected = [
             new ActionToken('TIRES SCREECHING...\nJoe is looking at his phone for the direction.')
         ];
 
@@ -66,14 +66,14 @@ describe('Fountain Markup Parser', () => {
                             1588 Mission Dr.
                             Solvang, CA 93463`;
 
-        let actual: Script = fountain.parse(title_page);
+        let actual = fountain.parse(title_page);
         let expected: Script = {
             title: 'BRICK & STEEL FULL RETIRED',
             html: {
                 title_page: '<h1><span class="bold underline">BRICK &amp; STEEL</span><br /><span class="bold underline">FULL RETIRED</span></h1><p class="credit">Written by</p><p class="authors">Stu Maschwitz</p><p class="source">Story by KTM</p><p class="draft-date">1/27/2012</p><p class="contact">Next Level Productions<br />1588 Mission Dr.<br />Solvang, CA 93463</p>',
                 script: ''
             },
-            tokens: undefined
+            tokens: []
         };
 
         expect(actual).toEqual(expected);
@@ -82,16 +82,16 @@ describe('Fountain Markup Parser', () => {
     it('should parse a scene heading', () => {
         const sceneHeading = "EXT. BRICK'S PATIO - DAY";
 
-        let actual: Script = fountain.parse(sceneHeading);
-        let expected: Script = { 
-            title: undefined, 
+        let actual = fountain.parse(sceneHeading);
+        let expected: Script = {
+            title: '', 
             html: { 
                 title_page: '', 
                 script: "<h3>EXT. BRICK'S PATIO - DAY</h3>" 
             },
-            tokens: undefined  
+            tokens: []
         };
-        
+
         expect(actual).toEqual(expected);
     });
 
@@ -126,9 +126,9 @@ describe('Fountain Markup Parser', () => {
         const alphaHeading = 'I/E HOUSE - DAY #A#';
         const alphaNumHeading = 'INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#';
 
-        let numToken: Token[] = fountain.parse(numHeaindg, true).tokens || [];
-        let alphaToken: Token[] = fountain.parse(alphaHeading, true).tokens || [];
-        let alphaNumToken: Token[] = fountain.parse(alphaNumHeading, true).tokens || [];
+        let numToken = fountain.parse(numHeaindg, true).tokens;
+        let alphaToken = fountain.parse(alphaHeading, true).tokens;
+        let alphaNumToken = fountain.parse(alphaNumHeading, true).tokens;
 
         expect(numToken).toEqual([ new SceneHeadingToken('INT. HOUSE - DAY #1#') ]);
         expect(alphaToken).toEqual([ new SceneHeadingToken('I/E HOUSE - DAY #A#') ]);
@@ -144,8 +144,8 @@ describe('Fountain Markup Parser', () => {
     it('should parse forced, single-aplhanumeric scene headings', () => {
         const heading = '.1';
 
-        let actual: Token[] = fountain.parse(heading, true).tokens || [];
-        let expected: Token[] = [ new SceneHeadingToken('.1') ];
+        let actual = fountain.parse(heading, true).tokens;
+        let expected = [ new SceneHeadingToken('.1') ];
 
         expect(actual).toEqual(expected);
     });
@@ -153,8 +153,8 @@ describe('Fountain Markup Parser', () => {
     it('should treat a period only at start of a line as action', () => {
         const notHeading = '.  ';
 
-        let actual: Token[] = fountain.parse(notHeading, true).tokens || [];
-        let expected: Token[] = [ new ActionToken('.  ') ];
+        let actual= fountain.parse(notHeading, true).tokens;
+        let expected = [ new ActionToken('.  ') ];
 
         expect(actual).toEqual(expected);
     });
@@ -167,9 +167,7 @@ describe('Fountain Markup Parser', () => {
 
                     SMASH CUT TO:`;
 
-        let output: Script = fountain.parse(text);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(text).html.script;
         let expected = '<h3>OPENING TITLES</h3><p class="centered">BRICK &amp; STEEL<br />FULL RETIRED</p><h2>SMASH CUT TO:</h2>';
 
         expect(actual).toBe(expected);
@@ -178,9 +176,7 @@ describe('Fountain Markup Parser', () => {
     it('should parse forced transitions', () => {
         const transition = '> Burn to Pink.';
 
-        let output: Script = fountain.parse(transition);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(transition).html.script;
         let expected = '<h2>Burn to Pink.</h2>';
 
         expect(actual).toBe(expected);
@@ -190,10 +186,8 @@ describe('Fountain Markup Parser', () => {
         const text = `>     center line 1     <
                       >     center line 2     <`;
 
-        const expected = '<p class="centered">center line 1<br />center line 2</p>';
-
-        const output: Script = fountain.parse(text);
-        const actual = output.html.script;
+        let actual = fountain.parse(text).html.script;
+        let expected = '<p class="centered">center line 1<br />center line 2</p>';
 
         expect(actual).toBe(expected);
     });
@@ -206,9 +200,7 @@ describe('Fountain Markup Parser', () => {
                     (skeptical)
                     Are they cold?`;
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>STEEL (O.S.)</h4><p>Beer\'s ready!</p></div><div class="dialogue"><h4>BRICK</h4><p class="parenthetical">(skeptical)</p><p>Are they cold?</p></div>';
 
         expect(actual).toBe(expected);
@@ -225,10 +217,9 @@ describe('Fountain Markup Parser', () => {
                         MONKEY
                     Dude, I'm a monkey.`;
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = `<div class="dialogue"><h4>DEALER</h4><p>Ten.<br />Four.<br />Dealer gets a seven.<br />  <br />Hit or stand sir?</p></div><div class="dialogue"><h4>MONKEY</h4><p>Dude, I'm a monkey.</p></div>`;
+
         expect(actual).toBe(expected);
     });
 
@@ -236,9 +227,7 @@ describe('Fountain Markup Parser', () => {
         const dialog = `@McCLANE
                     Yippie ki-yay! I got my lower-case C back!`;
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>McCLANE</h4><p>Yippie ki-yay! I got my lower-case C back!</p></div>'
 
         expect(actual).toBe(expected);
@@ -251,9 +240,7 @@ describe('Fountain Markup Parser', () => {
                         BRICK ^
                         Screw retirement.`;
 
-        let output: Script = fountain.parse(dualDialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dualDialog).html.script;
         let expected = '<div class="dual-dialogue"><div class="dialogue left"><h4>STEEL</h4><p>Screw retirement.</p></div><div class="dialogue right"><h4>BRICK</h4><p>Screw retirement.</p></div></div>';
 
         expect(actual).toBe(expected);
@@ -266,9 +253,7 @@ describe('Fountain Markup Parser', () => {
                         HANS (on the radio)
                     What was it you said?`;
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>MOM (O. S.)</h4><p>Luke! Come down for supper!</p></div><div class="dialogue"><h4>HANS (on the radio)</h4><p>What was it you said?</p></div>';
 
         expect(actual).toBe(expected);
@@ -278,9 +263,7 @@ describe('Fountain Markup Parser', () => {
         const dialog = `A
                     Pieces were stolen from me.`
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>A</h4><p>Pieces were stolen from me.</p></div>';
 
         expect(actual).toBe(expected);
@@ -290,9 +273,7 @@ describe('Fountain Markup Parser', () => {
         const dialog = `    @B
                     They never gave mine back.`
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>B</h4><p>They never gave mine back.</p></div>';
 
         expect(actual).toBe(expected);
@@ -303,9 +284,7 @@ describe('Fountain Markup Parser', () => {
                     (standing)
                     Excuse me. How much did it cost?`
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>DISGRUNTLED CITIZEN #1</h4><p class="parenthetical">(standing)</p><p>Excuse me. How much did it cost?</p></div>';
 
         expect(actual).toBe(expected);
@@ -315,9 +294,7 @@ describe('Fountain Markup Parser', () => {
         const dialog = `11 (O.S.)
                     I'm the monster.`
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = "<p>11 (O.S.)<br />I'm the monster.</p>";
 
         expect(actual).toBe(expected);
@@ -327,9 +304,7 @@ describe('Fountain Markup Parser', () => {
         const dialog = `@11
                     I'm the monster.`
 
-        let output: Script = fountain.parse(dialog);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(dialog).html.script;
         let expected = '<div class="dialogue"><h4>11</h4><p>I\'m the monster.</p></div>';
 
         expect(actual).toBe(expected);
@@ -340,9 +315,7 @@ describe('Fountain Markup Parser', () => {
                     (**starting the engine**)
                     So much for retirement!`;
 
-        let output: Script = fountain.parse(emphasisInside);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(emphasisInside).html.script;
         let expected = '<div class="dialogue"><h4>STEEL</h4><p class="parenthetical">(<span class="bold">starting the engine</span>)</p><p>So much for retirement!</p></div>';
 
         expect(actual).toBe(expected);
@@ -353,9 +326,7 @@ describe('Fountain Markup Parser', () => {
                     *(ah, wonderful)*
                     Oh, you've been "crunching numbers."`;
 
-        let output: Script = fountain.parse(emphasisOutside);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(emphasisOutside).html.script;
         let expected = `<div class="dialogue"><h4>WALT</h4><p class="parenthetical"><span class="italic">(ah, wonderful)</span></p><p>Oh, you've been &quot;crunching numbers.&quot;</p></div>`;
 
         expect(actual).toBe(expected);
@@ -367,9 +338,7 @@ describe('Fountain Markup Parser', () => {
                         Oh my --
                         La~de~da!`;
 
-        let output: Script = fountain.parse(wrongEmphasis);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(wrongEmphasis).html.script;
         let expected = '<div class="dialogue"><h4>TREVA</h4><p><span class="italic underline">*(sing-song)</span><br />Oh my --<br />La~de~da!</p></div>';
 
         expect(actual).toBe(expected);
@@ -378,7 +347,7 @@ describe('Fountain Markup Parser', () => {
     it('should be resiliant against parenthetical oddities', () => {
         const hangingParenthetical = `BRICK
                                 (confused)`;
-        
+
         const tooManySpaces = `DAN
                         Then let's retire them.
                         (grinning maniacally)                 
@@ -405,9 +374,7 @@ describe('Fountain Markup Parser', () => {
                             ***_(ear-splitting noises)_***
                             I'm upset.`;
 
-        let output: Script = fountain.parse(extremeEmphasis);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(extremeEmphasis).html.script;
         let expected = `<div class="dialogue"><h4>TOPHER</h4><p class="parenthetical"><span class="italic">(griping)</span></p><p class="parenthetical"><span class="bold">(complaining)</span></p><p class="parenthetical"><span class="underline">(grousing)</span></p><p class="parenthetical"><span class="bold italic">(howling)</span></p><p class="parenthetical"><span class="italic underline">(screaming)</span></p><p class="parenthetical"><span class="bold underline">(clangorously)</span></p><p class="parenthetical"><span class="bold italic underline">(ear-splitting noises)</span></p><p>I'm upset.</p></div>`;
 
         expect(actual).toBe(expected);
@@ -419,9 +386,7 @@ describe('Fountain Markup Parser', () => {
                         ~Oh my --
                         ~La~de~da!`;
 
-        let output: Script = fountain.parse(singing);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(singing).html.script;
         let expected = '<div class="dialogue"><h4>TREVA</h4><p class="parenthetical">(sing-song)</p><p class="lyrics">Oh my --<br />La~de~da!</p></div>';
 
         expect(expected).toBe(actual);
@@ -430,9 +395,7 @@ describe('Fountain Markup Parser', () => {
     it('should parse notes', () => {
         const notes = '[[Add an additional beat here]]';
 
-        let output: Script = fountain.parse(notes);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(notes).html.script;
         let expected = '<!-- Add an additional beat here -->';
 
         expect(actual).toBe(expected);
@@ -442,9 +405,7 @@ describe('Fountain Markup Parser', () => {
         const lyrics = `~Willy Wonka! Willy Wonka! The amazing chocolatier!
                         ~Willy Wonka! Willy Wonka! Everybody give a cheer!`;
 
-        let output: Script = fountain.parse(lyrics);
-        let actual = output.html.script;
-
+        let actual = fountain.parse(lyrics).html.script;
         let expected = '<p class="lyrics">Willy Wonka! Willy Wonka! The amazing chocolatier!<br />Willy Wonka! Willy Wonka! Everybody give a cheer!</p>';
 
         expect(actual).toBe(expected);
@@ -479,8 +440,8 @@ describe('Fountain Markup Parser', () => {
     it('should parse synopses by removing them from the output', () => {
         const synopses = `.BROADCAST STUDIO - AFTERNOON
 
-                    = The Inciting Incident -- Jacorey and Arthur must save the studio during a power outage.`;
-        
+                    =The Inciting Incident -- Jacorey and Arthur must save the studio during a power outage.`;
+
         const sectionAndSynopses = `# ACT I
 
             = Set up the characters and the story.
@@ -694,9 +655,8 @@ describe('Inline markdown lexer', () => {
 
     it('should parse inline markdown', () => {
         const inlineText = '_***bold italics underline***_ _**bold underline**_ _*italic underline*_ ***bold italics*** **bold** *italics* _underline_';
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p><span class="bold italic underline">bold italics underline</span> <span class="bold underline">bold underline</span> <span class="italic underline">italic underline</span> <span class="bold italic">bold italics</span> <span class="bold">bold</span> <span class="italic">italics</span> <span class="underline">underline</span></p>';
 
         expect(actual).toBe(expected);
@@ -772,9 +732,8 @@ describe('Inline markdown lexer', () => {
                             _*** bold italics underline***_ _***bold italics underline ***_
                             _** bold underline**_ _**bold underline **_
                             _* italic underline*_ _*italic underline *_`;
-        let output: Script = fountain.parse(inlineText);
 
-        let actual = output.html.script;
+        let actual = fountain.parse(inlineText).html.script;
         let expected = '<p>_ underline_ _underline _ * italic* *italic *<br />'
                        + '** bold** **bold **<br />'
                        + '*** bold italics*** ***bold italics ***<br />'
@@ -862,9 +821,7 @@ describe('Inline markdown lexer', () => {
                         grab your hats … because just then, a _BELL COBRA
                         HELICOPTER_ crests the edge of the bluff.`;
 
-        let output: Script = fountain.parse(action);
-
-        let actual = output.html.script;
+        let actual = fountain.parse(action).html.script;
         let expected = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a _BELL COBRA<br />HELICOPTER_ crests the edge of the bluff.</p>'
 
         expect(actual).toBe(expected);
@@ -894,8 +851,7 @@ describe('Additional compatibility tests', () => {
                         grab your hats … because just then, a BELL COBRA
                         HELICOPTER crests the edge of the bluff.`;
 
-        let output: Script = fountain.parse(action, true);
-
+        let output = fountain.parse(action, true);
         let expectedTokens = [
             new ActionToken(
                 'Murtaugh, *springing*, hell bent for leather -- and folks,\n'
@@ -911,7 +867,7 @@ describe('Additional compatibility tests', () => {
     });
 
     it('should return tokens via `getTokens` and its property', () => {
-        let output: Script = fountain.parse(
+        let output = fountain.parse(
             'They drink long and well from the beers.',
             true
         );
@@ -923,5 +879,9 @@ describe('Additional compatibility tests', () => {
 
         output = fountain.parse(scene, true);
         expect(output.tokens).toEqual(fountain.tokens);
+
+        // return tokens even if `getTokens` is false
+        output = fountain.parse('They drink long and well from the beers.');
+        expect(fountain.tokens).toBeDefined();
     });
 });
