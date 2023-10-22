@@ -146,6 +146,9 @@ export class DialogueBlock implements Block {
                 if (!text.length) {
                     return p;
                 }
+                if (rules.line_break.test(text)) {
+                    text = '';
+                }
                 if (rules.parenthetical.test(text)) {
                     return [...p, new ParentheticalToken(text)];
                 }
@@ -158,11 +161,9 @@ export class DialogueBlock implements Block {
                         return [...p, new LyricsToken(text)];
                     }
                 }
-                if (previousToken) {
-                    if (previousToken.type === 'dialogue') {
-                        p[lastIndex].text = `${previousToken.text}\n${text}`;
-                        return p;
-                    }
+                if (previousToken?.type === 'dialogue') {
+                    p[lastIndex].text = `${previousToken.text}\n${text}`;
+                    return p;
                 }
                 return [...p, new DialogueToken(text)];
             }, [] as Token[]).reverse();
@@ -381,20 +382,6 @@ export class PageBreakToken implements Token {
         return rules.page_break.test(line);
     }
 }
-
-
-export class LineBreakToken implements Token {
-    readonly type = 'line_break';
-
-    addTo(tokens: Token[]): Token[] {
-        return [...tokens, this];
-    }
-
-    static matchedBy(line: string) {
-        return rules.line_break.test(line);
-    }
-}
-
 
 export class ActionToken implements Token {
     readonly type = 'action';

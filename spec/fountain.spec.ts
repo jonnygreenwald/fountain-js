@@ -218,7 +218,7 @@ describe('Fountain Markup Parser', () => {
                     Dude, I'm a monkey.`;
 
         let actual = fountain.parse(dialog).html.script;
-        let expected = `<div class="dialogue"><h4>DEALER</h4><p>Ten.<br />Four.<br />Dealer gets a seven.<br />  <br />Hit or stand sir?</p></div><div class="dialogue"><h4>MONKEY</h4><p>Dude, I'm a monkey.</p></div>`;
+        let expected = `<div class="dialogue"><h4>DEALER</h4><p>Ten.<br />Four.<br />Dealer gets a seven.<br /><br />Hit or stand sir?</p></div><div class="dialogue"><h4>MONKEY</h4><p>Dude, I'm a monkey.</p></div>`;
 
         expect(actual).toBe(expected);
     });
@@ -389,7 +389,7 @@ describe('Fountain Markup Parser', () => {
         let actual = fountain.parse(singing).html.script;
         let expected = '<div class="dialogue"><h4>TREVA</h4><p class="parenthetical">(sing-song)</p><p class="lyrics">Oh my --<br />La~de~da!</p></div>';
 
-        expect(expected).toBe(actual);
+        expect(actual).toBe(expected);
     });
 
     it('should parse notes', () => {

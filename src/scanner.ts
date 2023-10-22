@@ -4,7 +4,6 @@ import {
     BoneyardToken,
     CenteredToken,
     DialogueBlock,
-    LineBreakToken,
     LyricsToken,
     NoteToken,
     PageBreakToken,
@@ -71,10 +70,6 @@ export class Scanner {
             /** page breaks */
             if (PageBreakToken.matchedBy(line)) {
                 return new PageBreakToken().addTo(previous);
-            }
-            /** line breaks */
-            if (LineBreakToken.matchedBy(line)) {
-                return new LineBreakToken().addTo(previous);
             }
             // everything else is action -- remove `!` for forced action
             return new ActionToken(line).addTo(previous);

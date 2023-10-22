@@ -11,6 +11,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Add line numbers to tokens.
 - Allow any title field attributes.
 - Better title page parsing in general.
+- Fix line break logic in dialogue.
 
 ## [1.1.4] - 2023-10-01
 
