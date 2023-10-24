@@ -65,7 +65,7 @@ export class Fountain {
     }
 
     to_html(token: Token) {
-        let lexedText: string | undefined;
+        let lexedText = '';
 
         if (token?.text) {
             lexedText = this.inlineLex.reconstruct(token.text);
@@ -107,7 +107,7 @@ export class Fountain {
             case 'lyrics': return `<p class="lyrics">${lexedText}</p>`;
 
             case 'page_break': return `<hr />`;
-            case 'line_break': return `<br />`;
+            case 'spaces': return;
         }
     }
 }

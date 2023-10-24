@@ -9,6 +9,7 @@ import {
     PageBreakToken,
     SceneHeadingToken,
     SectionToken,
+    SpacesToken,
     SynopsisToken,
     TitlePageBlock,
     Token,
@@ -24,10 +25,14 @@ export class Scanner {
                             .replace(rules.boneyard, '\n$1\n')
                             .replace(/\r\n|\r/g, '\n')                      // convert carriage return / returns to newline
                             .replace(/^\t+|^ {3,}/gm, '')                   // remove tabs / 3+ whitespaces
-                            .split(rules.splitter)
+                            .split(rules.end_of_lines)
                             .reverse();
 
         const tokens: Token[] = source.reduce((previous: Token[], line: string) => {
+            /** spaces */
+            if (SpacesToken.matchedBy(line)) {
+                return new SpacesToken().addTo(previous);
+            }
             /** title page */
             if (TitlePageBlock.matchedBy(line)) {
                 return new TitlePageBlock(line).addTo(previous);

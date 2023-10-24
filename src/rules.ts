@@ -10,8 +10,7 @@ export type FountainTypes = 'title_page' | 'scene_heading'
                 | 'italic_underline' | 'bold_italic'
                 | 'bold' | 'italic'
                 | 'underline' | 'escape'
-                | 'splitter' | 'cleaner'
-                | 'standardizer' | 'whitespacer';
+                | 'blank_line' | 'end_of_lines';
 
 export const rules: Record<FountainTypes, RegExp> = {
     title_page: /^((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
@@ -50,8 +49,6 @@ export const rules: Record<FountainTypes, RegExp> = {
 
     escape: /\\([@#!*_$~`+=.><\\\/])/g,
 
-    splitter: /\n{2,}/g,
-    cleaner: /^\n+|\n+$/,
-    standardizer: /\r\n|\r/g,
-    whitespacer: /^\t+|^ {3,}/gm
+    blank_line: /^(?: *(?:\n|$))+/,
+    end_of_lines: /(?:\n|$){2,}/g
 };

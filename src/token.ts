@@ -21,7 +21,10 @@ export class TitlePageBlock implements Block {
     readonly tokens: Token[] = [];
 
     constructor(line: string) {
-        const match = line.replace(rules.title_page, '\n$1').split(rules.splitter).reverse();
+        const match = line
+                    .replace(rules.title_page, '\n$1')
+                    .split(rules.end_of_lines)
+                    .reverse();
         this.tokens = match.reduce(
             (previous, item) => new TitlePageToken(item).addTo(previous)
         , []);
@@ -42,7 +45,7 @@ export class TitlePageToken implements Token {
     readonly text: string;
 
     constructor(item: string) {
-        const pair = item.replace(rules.cleaner, '').split(/\:\n*/);
+        const pair = item.split(/\:\n*/);
         this.type = pair[0].trim().toLowerCase().replace(' ', '_');
         this.text = pair[1].trim();
     }
@@ -380,6 +383,18 @@ export class PageBreakToken implements Token {
 
     static matchedBy(line: string) {
         return rules.page_break.test(line);
+    }
+}
+
+export class SpacesToken implements Token {
+    readonly type = 'spaces';
+
+    addTo(tokens: Token[]): Token[] {
+        return [...tokens, this];
+    }
+
+    static matchedBy(line: string) {
+        return rules.blank_line.test(line);
     }
 }
 

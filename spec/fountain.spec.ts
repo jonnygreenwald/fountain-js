@@ -30,6 +30,30 @@ describe('Fountain Markup Parser', () => {
         expect(actual).toEqual(expected);
     });
 
+    it('should handle empty strings gracefully', () => {
+        const empty = '';
+        const one_empty_line = '    ';
+        const empty_lines = '    \n    ';
+        const many_empty_lines = `
+    
+    
+        `;
+
+        let actual = fountain.parse(empty).html.script;
+        let expected = '';
+
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(one_empty_line).html.script;
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(empty_lines).html.script;
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(many_empty_lines).html.script;
+        expect(actual).toBe(expected);
+    });
+
     it('should parse forced action', () => {
         const action = '!William enters -- and there stands Anna.';
 
