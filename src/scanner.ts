@@ -15,19 +15,22 @@ import {
     TransitionToken
 } from './token';
 
-import { Lexer } from './lexer';
-
 export class Scanner {
     private lastLineWasDualDialogue: boolean;
 
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
-        const source: string[] = new Lexer().reconstruct(script).split(rules.splitter).reverse();
+        const source: string[] = script
+                            .replace(rules.boneyard, '\n$1\n')
+                            .replace(/\r\n|\r/g, '\n')                      // convert carriage return / returns to newline
+                            .replace(/^\t+|^ {3,}/gm, '')                   // remove tabs / 3+ whitespaces
+                            .split(rules.splitter)
+                            .reverse();
 
         const tokens: Token[] = source.reduce((previous: Token[], line: string) => {
             /** title page */
             if (TitlePageBlock.matchedBy(line)) {
-                return new TitlePageBlock(line).addTo(previous)
+                return new TitlePageBlock(line).addTo(previous);
             }
             /** scene headings */
             if (SceneHeadingToken.matchedBy(line)) {
@@ -43,8 +46,8 @@ export class Scanner {
             }
             /** dialogue blocks - characters, parentheticals and dialogue */
             if (DialogueBlock.matchedBy(line)) {
-                const dialogueBlock = new DialogueBlock(line, this.lastLineWasDualDialogue)
-                this.lastLineWasDualDialogue = dialogueBlock.dual
+                const dialogueBlock = new DialogueBlock(line, this.lastLineWasDualDialogue);
+                this.lastLineWasDualDialogue = dialogueBlock.dual;
                 return dialogueBlock.addTo(previous);
             }
             /** section */
@@ -71,7 +74,7 @@ export class Scanner {
             if (PageBreakToken.matchedBy(line)) {
                 return new PageBreakToken().addTo(previous);
             }
-            // everything else is action -- remove `!` for forced action
+            /** action */
             return new ActionToken(line).addTo(previous);
         }, []);
 

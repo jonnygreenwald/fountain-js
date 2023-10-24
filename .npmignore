@@ -4,3 +4,4 @@ samples/
 node_modules/
 jasmine.json
 tsconfig*
+_notes.md

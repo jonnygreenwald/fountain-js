@@ -12,6 +12,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Allow any title field attributes.
 - Better title page parsing in general.
 - Fix line break logic in dialogue.
+- Fix issue with empty strings returning `<p>undefined</p>`
 
 ## [1.1.4] - 2023-10-01
 

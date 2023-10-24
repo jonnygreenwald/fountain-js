@@ -7,16 +7,7 @@ export type InlineTypes = 'note' | 'line_break'
                 | 'bold' | 'italic'
                 | 'underline' | 'escape';
 
-export class Lexer {
-    reconstruct(script: string) {
-        return script.replace(rules.boneyard, '\n$1\n')
-            .replace(rules.standardizer, '\n')
-            .replace(rules.cleaner, '')
-            .replace(rules.whitespacer, '');
-    }
-}
-
-export class InlineLexer extends Lexer {
+export class InlineLexer {
     inline: Record<InlineTypes, string> = {
         note: '<!-- $1 -->',
 
