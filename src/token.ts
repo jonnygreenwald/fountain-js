@@ -18,20 +18,23 @@ export interface Block {
 }
 
 export class TitlePageBlock implements Block {
-    readonly tokens: TitlePageToken[] = [];
+    readonly tokens: Token[] = [];
 
     constructor(line: string) {
-        const match = line.replace(rules.title_page, '\n$1').split(rules.splitter).reverse();
+        const match = line
+                    .replace(rules.title_page, '\n$1')
+                    .split(rules.end_of_lines)
+                    .reverse();
         this.tokens = match.reduce(
             (previous, item) => new TitlePageToken(item).addTo(previous)
         , []);
     }
 
-    addTo(tokens: Token[]): Token[] {
+    addTo(tokens: Token[]) {
         return [...tokens, ...this.tokens];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.title_page.test(line);
     }
 }
@@ -42,9 +45,9 @@ export class TitlePageToken implements Token {
     readonly text: string;
 
     constructor(item: string) {
-        const pair = item.replace(rules.cleaner, '').split(/\:\n*/);
+        const pair = item.split(/\:\n*/);
         this.type = pair[0].trim().toLowerCase().replace(' ', '_');
-        this.text = pair[1].trim();
+        this.text = pair[1].replace(/^\s*/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -59,9 +62,11 @@ export class SceneHeadingToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.scene_heading);
-        this.text = match[1] || match[2];
+        if (match) {
+            this.text = match[1] || match[2];
+        }
 
-        const meta: RegExpMatchArray = this.text.match(rules.scene_number);
+        const meta = this.text.match(rules.scene_number);
         if (meta) {
             this.scene_number = meta[2];
             this.text = this.text.replace(rules.scene_number, '');
@@ -72,7 +77,7 @@ export class SceneHeadingToken implements Token {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.scene_heading.test(line);
     }
 }
@@ -83,14 +88,16 @@ export class CenteredToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.centered);
-        this.text = match[0].replace(/ *[><] */g, '');
+        if (match) {
+            this.text = match[0].replace(/[^\S\n]*[><][^\S\n]*/g, '');
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.centered.test(line);
     }
 }
@@ -101,14 +108,16 @@ export class TransitionToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.transition);
-        this.text = match[1] || match[2];
+        if (match) {
+            this.text = match[1] || match[2];
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.transition.test(line);
     }
 }
@@ -121,68 +130,73 @@ export class DialogueBlock implements Block {
     constructor(line: string, dual: boolean) {
         const match = line.match(rules.dialogue);
 
-        let name = match[1];
+        if (match) {
+            let name = match[1].trim();
 
-        // iterating from the bottom up, so push dialogue blocks in reverse order
-        const isDualDialogue = !!match[2];
-        if (isDualDialogue) {
-            this.tokens.push(new DualDialogueEndToken());
-        }
-
-        this.tokens.push(new DialogueEndToken());
-
-        const parts: string[] = match[3].split(/\n/);
-        let dialogue: Token[] = parts.reduce((p: Token[], text = '') => {
-            const lastIndex = p.length - 1;
-            const previousToken = p[lastIndex];
-
-            if (!text.length) {
-                return p;
+            // iterating from the bottom up, so push dialogue blocks in reverse order
+            const isDualDialogue = !!match[2];
+            if (isDualDialogue) {
+                this.tokens.push(new DualDialogueEndToken());
             }
-            if (rules.parenthetical.test(text)) {
-                return [...p, new ParentheticalToken(text)];
-            }
-            if (rules.lyrics.test(text)) {
-                if (previousToken.type === 'lyrics') {
-                    p[lastIndex].text = 
-                                `${previousToken.text}\n${text.replace(/^~/, '')}`;
+
+            this.tokens.push(new DialogueEndToken());
+
+            const parts: string[] = match[3].split(/\n/);
+            let dialogue: Token[] = parts.reduce((p: Token[], text = '') => {
+                const lastIndex = p.length - 1;
+                const previousToken = p[lastIndex];
+
+                if (!text.length) {
                     return p;
-                } else {
-                    return [...p, new LyricsToken(text)];
                 }
-            }
-            if (previousToken) {
-                if (previousToken.type === 'dialogue') {
+                if (rules.line_break.test(text)) {
+                    text = '';
+                }
+                text = text.trim();
+
+                if (rules.parenthetical.test(text)) {
+                    return [...p, new ParentheticalToken(text)];
+                }
+                if (rules.lyrics.test(text)) {
+                    if (previousToken.type === 'lyrics') {
+                        p[lastIndex].text = 
+                                    `${previousToken.text}\n${text.replace(/^~/, '')}`;
+                        return p;
+                    } else {
+                        return [...p, new LyricsToken(text)];
+                    }
+                }
+                if (previousToken?.type === 'dialogue') {
                     p[lastIndex].text = `${previousToken.text}\n${text}`;
                     return p;
                 }
+                return [...p, new DialogueToken(text)];
+            }, [] as Token[]).reverse();
+            this.tokens.push(...dialogue);
+
+            this.tokens.push(
+                new CharacterToken(
+                    name.startsWith('@') 
+                    ? name.replace(/^@/, '').trim() 
+                    : name.trim()),
+                new DialogueBeginToken(
+                    isDualDialogue ? 'right' : dual ? 'left' : undefined
+                )
+            );
+
+            if (dual) {
+                this.tokens.push(new DualDialogueBeginToken());
             }
-            return [...p, new DialogueToken(text)];
-        }, [] as Token[]).reverse();
-        this.tokens.push(...dialogue);
 
-        this.tokens.push(
-            new CharacterToken(
-                name.startsWith('@') 
-                ? name.replace(/^@/, '').trim() 
-                : name.trim()),
-            new DialogueBeginToken(
-                isDualDialogue ? 'right' : dual ? 'left' : undefined
-            )
-        );
-
-        if (dual) {
-            this.tokens.push(new DualDialogueBeginToken());
+            this.dual = isDualDialogue;
         }
-
-        this.dual = isDualDialogue;
     }
 
-    addTo(tokens: Token[]): Token[] {
+    addTo(tokens: Token[]) {
         return [...tokens, ...this.tokens];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.dialogue.test(line);
     }
 }
@@ -268,14 +282,14 @@ export class LyricsToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^~(?! )/gm, '');
+        this.text = line.replace(/^\s*~(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.lyrics.test(line);
     }
 }
@@ -287,15 +301,17 @@ export class SectionToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.section);
-        this.text = match[2];
-        this.depth = match[1].length;
+        if (match) {
+            this.text = match[2];
+            this.depth = match[1].length;
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.section.test(line);
     }
 }
@@ -306,14 +322,16 @@ export class SynopsisToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.synopsis);
-        this.text = match[1];
+        if (match) {
+            this.text = match[1];
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.synopsis.test(line);
     }
 }
@@ -324,14 +342,16 @@ export class NoteToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.note);
-        this.text = match[1];
+        if (match) {
+            this.text = match[1];
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.note.test(line);
     }
 }
@@ -342,14 +362,16 @@ export class BoneyardToken implements Token {
 
     constructor(line: string) {
         const match = line.match(rules.boneyard);
-        this.type = match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end';
+        if (match) {
+            this.type = match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end';
+        }
     }
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.boneyard.test(line);
     }
 }
@@ -361,31 +383,32 @@ export class PageBreakToken implements Token {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
+    static matchedBy(line: string) {
         return rules.page_break.test(line);
     }
 }
 
-
-export class LineBreakToken implements Token {
-    readonly type = 'line_break';
+export class SpacesToken implements Token {
+    readonly type = 'spaces';
 
     addTo(tokens: Token[]): Token[] {
         return [...tokens, this];
     }
 
-    static matchedBy(line: string): boolean {
-        return rules.line_break.test(line);
+    static matchedBy(line: string) {
+        return rules.blank_line.test(line);
     }
 }
-
 
 export class ActionToken implements Token {
     readonly type = 'action';
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^!(?! )/gm, '');
+        this.text = line.replace(/^(\s*)!(?! )/gm, '$1')
+                .replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+                    return leading + '    '.repeat(tabs.length);
+                });
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -393,7 +416,7 @@ export class ActionToken implements Token {
     }
 
     /** Currently unused, but here for posterity: */
-    // static matchedBy(line: string): boolean {
+    // static matchedBy(line: string) {
     //     return regex.action.test(line);
     // }
 }

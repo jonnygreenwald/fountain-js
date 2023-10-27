@@ -7,16 +7,7 @@ export type InlineTypes = 'note' | 'line_break'
                 | 'bold' | 'italic'
                 | 'underline' | 'escape';
 
-export class Lexer {
-    reconstruct(script: string) {
-        return script.replace(rules.boneyard, '\n$1\n')
-            .replace(rules.standardizer, '\n')
-            .replace(rules.cleaner, '')
-            .replace(rules.whitespacer, '');
-    }
-}
-
-export class InlineLexer extends Lexer {
+export class InlineLexer {
     inline: Record<InlineTypes, string> = {
         note: '<!-- $1 -->',
 
@@ -33,12 +24,16 @@ export class InlineLexer extends Lexer {
         escape: '$1'
     };
 
-    reconstruct(line: string) {
-        if (!line) 
-            return;
-
-        let match: RegExp;
-        const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
+    reconstruct(line: string, escapeSpaces = false) {
+        const styles = [
+            'bold_italic_underline',
+            'bold_underline',
+            'italic_underline',
+            'bold_italic',
+            'bold',
+            'italic',
+            'underline'
+        ];
 
         line = escapeHTML(
                 line
@@ -46,17 +41,23 @@ export class InlineLexer extends Lexer {
                     .replace(rules.escape, '[{{{$&}}}]')                    // perserve escaped characters
         );
 
-        for (let style of styles) {
-            match = rules[style];
+        if (escapeSpaces) {
+            line = line.replace(/^( +)/gm, (_, spaces) => {
+                return '&nbsp;'.repeat(spaces.length);
+            });
+        }
 
-            if (match.test(line)) {
-                line = line.replace(match, this.inline[style]);
+        for (let style of styles) {
+            const rule: RegExp = rules[style];
+
+            if (rule.test(line)) {
+                line = line.replace(rule, this.inline[style]);
             }
         }
 
         return line
                 .replace(/\n/g, this.inline.line_break)
-                .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)         // restore escaped chars to intended sequence
-                .trim();
+                .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)       // restore escaped chars to intended sequence
+                .trimEnd();
     }
 }
