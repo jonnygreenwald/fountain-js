@@ -47,7 +47,7 @@ export class TitlePageToken implements Token {
     constructor(item: string) {
         const pair = item.split(/\:\n*/);
         this.type = pair[0].trim().toLowerCase().replace(' ', '_');
-        this.text = pair[1].trim();
+        this.text = pair[1].replace(/^\s*/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -89,7 +89,7 @@ export class CenteredToken implements Token {
     constructor(line: string) {
         const match = line.match(rules.centered);
         if (match) {
-            this.text = match[0].replace(/ *[><] */g, '');
+            this.text = match[0].replace(/[^\S\n]*[><][^\S\n]*/g, '');
         }
     }
 
@@ -131,7 +131,7 @@ export class DialogueBlock implements Block {
         const match = line.match(rules.dialogue);
 
         if (match) {
-            let name = match[1];
+            let name = match[1].trim();
 
             // iterating from the bottom up, so push dialogue blocks in reverse order
             const isDualDialogue = !!match[2];
@@ -152,6 +152,8 @@ export class DialogueBlock implements Block {
                 if (rules.line_break.test(text)) {
                     text = '';
                 }
+                text = text.trim();
+
                 if (rules.parenthetical.test(text)) {
                     return [...p, new ParentheticalToken(text)];
                 }
@@ -280,7 +282,7 @@ export class LyricsToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^~(?! )/gm, '');
+        this.text = line.replace(/^\s*~(?! )/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
@@ -403,7 +405,10 @@ export class ActionToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^!(?! )/gm, '');
+        this.text = line.replace(/^(\s*)!(?! )/gm, '$1')
+                .replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+                    return leading + '    '.repeat(tabs.length);
+                });
     }
 
     addTo(tokens: Token[]): Token[] {

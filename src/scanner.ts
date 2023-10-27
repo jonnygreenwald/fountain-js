@@ -24,7 +24,6 @@ export class Scanner {
         const source: string[] = script
                             .replace(rules.boneyard, '\n$1\n')
                             .replace(/\r\n|\r/g, '\n')                      // convert carriage return / returns to newline
-                            .replace(/^\t+|^ {3,}/gm, '')                   // remove tabs / 3+ whitespaces
                             .split(rules.end_of_lines)
                             .reverse();
 

@@ -13,23 +13,23 @@ export type FountainTypes = 'title_page' | 'scene_heading'
                 | 'blank_line' | 'end_of_lines';
 
 export const rules: Record<FountainTypes, RegExp> = {
-    title_page: /^((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
+    title_page: /^\s*((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
 
-    scene_heading: /^((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+)|^\.(?!\.+)(\S.*)/i,
+    scene_heading: /^\s*((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+)|^\s*\.(?!\.+)(\S.*)/i,
     scene_number: /( *#(.+)# *)/,
 
-    transition: /^((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:)|^> *(.+)/,
+    transition: /^\s*((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:)\s*$|^\s*> *(.+)$/,
 
-    dialogue: /(?!^[0-9 _*]+(?:\(.*\))?[ *_]*(?:\^?)?\s*\n)(^(?:(?!\\?@|!)[^^()\na-z]+|@[^^()\n]+)(?: *\(.*\))?[ *_]*)(\^?)?\s*\n(?!\n+)([\s\S]+)/,
+    dialogue: /(?!^\s*\\@|^\s*!)(?!^\s*[0-9 _*]+(?:\(.*\))?[*_]*(?:\^?)?\s*\n)(^\s*(?:@[^^()\n]+|[^^()\na-z]+)(?: *\(.*\))?[ *_]*)(\^?)?\s*\n(?!\n+)([\s\S]+)/,
     parenthetical: /^ *(?:(?<u1>_{0,1})(?<s1>\*{0,3})(?=.+\k<s1>\k<u1>)|(?<s2>\*{0,3})(?<u2>_{0,1})(?=.+\k<u2>\k<s2>))(\(.+?\))(\k<s1>\k<u1>|\k<u2>\k<s2>) *$/,
 
     action: /^(.+)/g,
-    centered: /^> *(.+) *<(\n.+)*/g,
+    centered: /^\s*>.+<[^\S\r\n]*(?:\s*>.+<[^\S\r\n]*)*/g,
 
-    lyrics: /^~(?! ).+(?:\n~(?! ).+)*/,
+    lyrics: /^\s*~(?! ).+(?:\n\s*~(?! ).+)*/,
 
-    section: /^(#+) *(.*)/,
-    synopsis: /^=(?!=+) *(.*)/,
+    section: /^\s*(#+) *(.*)/,
+    synopsis: /^\s*=(?!=+) *(.*)/,
 
     note: /^\[{2}(?!\[+)(.+)]{2}(?!\[+)$/,
     note_inline: /\[{2}(?!\[+)([\s\S]+?)]{2}(?!\[+)/g,

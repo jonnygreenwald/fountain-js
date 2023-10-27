@@ -13,6 +13,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Better title page parsing in general.
 - Fix line break logic in dialogue.
 - Fix issue with empty strings returning `<p>undefined</p>`
+- Tabs and spaces retained in Action elements. Tabs are converted to four spaces
 
 ## [1.1.4] - 2023-10-01
 

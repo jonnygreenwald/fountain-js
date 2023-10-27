@@ -68,7 +68,7 @@ export class Fountain {
         let lexedText = '';
 
         if (token?.text) {
-            lexedText = this.inlineLex.reconstruct(token.text);
+            lexedText = this.inlineLex.reconstruct(token.text, token.type === 'action');
         }
 
         switch (token.type) {

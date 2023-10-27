@@ -30,30 +30,6 @@ describe('Fountain Markup Parser', () => {
         expect(actual).toEqual(expected);
     });
 
-    it('should handle empty strings gracefully', () => {
-        const empty = '';
-        const one_empty_line = '    ';
-        const empty_lines = '    \n    ';
-        const many_empty_lines = `
-    
-    
-        `;
-
-        let actual = fountain.parse(empty).html.script;
-        let expected = '';
-
-        expect(actual).toBe(expected);
-
-        actual = fountain.parse(one_empty_line).html.script;
-        expect(actual).toBe(expected);
-
-        actual = fountain.parse(empty_lines).html.script;
-        expect(actual).toBe(expected);
-
-        actual = fountain.parse(many_empty_lines).html.script;
-        expect(actual).toBe(expected);
-    });
-
     it('should parse forced action', () => {
         const action = '!William enters -- and there stands Anna.';
 
@@ -66,13 +42,31 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse multiple lines of forced action', () => {
-        const action = `!TIRES SCREECHING...
+        const action = `    !TIRES SCREECHING...
                     Joe is looking at his phone for the direction.`;
 
         let actual = fountain.parse(action, true).tokens;
         let expected = [
-            new ActionToken('TIRES SCREECHING...\nJoe is looking at his phone for the direction.')
+            new ActionToken('    TIRES SCREECHING...\n                    Joe is looking at his phone for the direction.')
         ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should retain spaces in action elements per spec', () => {
+        const spaces = '    I need a little space.';
+
+        let actual = fountain.parse(spaces).html.script;
+        let expected = '<p>&nbsp;&nbsp;&nbsp;&nbsp;I need a little space.</p>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should convert tabs in action to four spaces per spec', () => {
+        const tabs = "  \tHow 'bout a tab?   ";
+
+        let actual = fountain.parse(tabs).html.script;
+        let expected = "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How 'bout a tab?</p>";
 
         expect(actual).toEqual(expected);
     });
@@ -184,10 +178,10 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse some transitions, forced headings and centered text', () => {
-        const text = `.OPENING TITLES
+        const text = `\t.OPENING TITLES
 
-                    > BRICK & STEEL <
-                    > FULL RETIRED <
+            \t\t> BRICK & STEEL <
+            \t\t> FULL RETIRED <
 
                     SMASH CUT TO:`;
 
@@ -199,15 +193,23 @@ describe('Fountain Markup Parser', () => {
 
     it('should parse forced transitions', () => {
         const transition = '> Burn to Pink.';
+        const leadingSpacesTrans = '           > Burn to Pink.';
+        const leadingTabsTrans = '\t\t> Burn to Pink.';
 
         let actual = fountain.parse(transition).html.script;
         let expected = '<h2>Burn to Pink.</h2>';
 
         expect(actual).toBe(expected);
+
+        actual = fountain.parse(leadingSpacesTrans).html.script;
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(leadingTabsTrans).html.script;
+        expect(actual).toBe(expected);
     });
 
     it('should strip  leading/trailing spaces from centered text', () => {
-        const text = `>     center line 1     <
+        const text = `>\tcenter line 1\t<
                       >     center line 2     <`;
 
         let actual = fountain.parse(text).html.script;
@@ -248,7 +250,7 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse forced dialog', () => {
-        const dialog = `@McCLANE
+        const dialog = `    @McCLANE
                     Yippie ki-yay! I got my lower-case C back!`;
 
         let actual = fountain.parse(dialog).html.script;
@@ -315,10 +317,9 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should not allow character names that are all numbers per spec', () => {
-        const dialog = `11 (O.S.)
-                    I'm the monster.`
+        const notDialog = "11 (O.S.)\nI'm the monster.";
 
-        let actual = fountain.parse(dialog).html.script;
+        let actual = fountain.parse(notDialog).html.script;
         let expected = "<p>11 (O.S.)<br />I'm the monster.</p>";
 
         expect(actual).toBe(expected);
@@ -466,15 +467,15 @@ describe('Fountain Markup Parser', () => {
 
                     =The Inciting Incident -- Jacorey and Arthur must save the studio during a power outage.`;
 
-        const sectionAndSynopses = `# ACT I
+        const sectionAndSynopses = `    # ACT I
 
-            = Set up the characters and the story.
+    = Set up the characters and the story.
 
-            EXT. BRICK'S PATIO - DAY
+EXT. BRICK'S PATIO - DAY
 
-            = This scene sets up Brick & Steel's new life as retirees. Warm sun, cold beer, and absolutely nothing to do.
+    = This scene sets up Brick & Steel's new life as retirees. Warm sun, cold beer, and absolutely nothing to do.
 
-            A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something.`;
+A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something.`;
 
         let actual = fountain.parse(synopses).html.script;
         let expected = '<h3>BROADCAST STUDIO - AFTERNOON</h3>';
@@ -500,9 +501,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold italic underline">bold italic underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `&________***bold italic underline___***________
-                            _***_***_ _*******_
-                            _***hello_world***_ e___***bold italic underline***_`;
+        const variations = '&________***bold italic underline___***________\n'
+                            + '_***_***_ _*******_\n'
+                            + '_***hello_world***_ e___***bold italic underline***_';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>&amp;_______<span class="bold italic underline">bold italic underline___</span>_______<br />'
@@ -518,9 +519,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold italic underline">bold italic underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e********_bold italic underline?_***
-                            ***_*_***
-                            ***_hello * world_***!`;
+        const variations = 'e********_bold italic underline?_***\n'
+                            + '***_*_***\n'
+                            + '***_hello * world_***!';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e*****<span class="bold italic underline">bold italic underline?</span><br />'
@@ -537,9 +538,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold underline">bold underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `&________**bold underline___**________
-                            _**_**_ _*****_
-                            _**hello_world**_ e___**bold underline**_`;
+        const variations = '&________**bold underline___**________\n'
+                            + '_**_**_ _*****_\n'
+                            + '_**hello_world**_ e___**bold underline**_';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>&amp;_______<span class="bold underline">bold underline___</span>_______<br />'
@@ -555,9 +556,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold underline">bold underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e*******_bold underline?_**
-                            **_*_**
-                            **_hello * world_**!`;
+        const variations = 'e*******_bold underline?_**\n'
+                            + '**_*_**\n'
+                            + '**_hello * world_**!';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e*****<span class="bold underline">bold underline?</span><br />'
@@ -574,9 +575,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="italic underline">italic underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `&________*italic underline___*________
-                            _*_*_ _***_
-                            _*hello_world*_ e___*italic underline*_`;
+        const variations = '&________*italic underline___*________\n'
+                            + '_*_*_ _***_\n'
+                            + '_*hello_world*_ e___*italic underline*_';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>&amp;_______<span class="italic underline">italic underline___</span>_______<br />'
@@ -592,9 +593,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="italic underline">italic underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e******_italic underline?_*
-                            *_*_*
-                            *_hello * world_*!`;
+        const variations = 'e******_italic underline?_*\n'
+                            + '*_*_*\n'
+                            + '*_hello * world_*!';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e*****<span class="italic underline">italic underline?</span><br />'
@@ -611,9 +612,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold italic">bold italic</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e*********bold italic?***
-                            ***_*** ******
-                            ***hello * world*** ***bold_italic***`;
+        const variations = 'e*********bold italic?***\n'
+                            + '***_*** ******\n'
+                            + '***hello * world*** ***bold_italic***';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e******<span class="bold italic">bold italic?</span><br />'
@@ -629,9 +630,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="bold">bold</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e********bold**.
-                            **_** *****
-                            **hello * world** **$bold_***`;
+        const variations = 'e********bold**.\n'
+                            + '**_** *****\n'
+                            + '**hello * world** **$bold_***';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e******<span class="bold">bold</span>.<br />'
@@ -647,9 +648,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="italic">italics</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `e******italic*?
-                            *_* ***
-                            *hello * world* %*_italic*`;
+        const variations = 'e******italic*?\n'
+                            + '*_* ***\n'
+                            + '*hello * world* %*_italic*';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>e*****<span class="italic">italic</span>?<br />'
@@ -665,9 +666,9 @@ describe('Inline markdown lexer', () => {
         let expected = '<p><span class="underline">underline</span></p>';
         expect(actual).toBe(expected);
 
-        const variations = `&____underline______ _hello_world_! e_nothing_
-                            _*_ ___
-                            _underline *_ _* underline_`;
+        const variations = '&____underline______ _hello_world_! e_nothing_\n'
+                            + '_*_ ___\n'
+                            + '_underline *_ _* underline_';
 
         actual = fountain.parse(variations).html.script;
         expected = '<p>&amp;___<span class="underline">underline</span>_____ <span class="underline">hello_world</span>!'
@@ -750,12 +751,12 @@ describe('Inline markdown lexer', () => {
     });
 
     it('should ignore non-flanking inline markdown', () => {
-        const inlineText = `_ underline_ _underline _ * italic* *italic *
-                            ** bold** **bold **
-                            *** bold italics*** ***bold italics ***
-                            _*** bold italics underline***_ _***bold italics underline ***_
-                            _** bold underline**_ _**bold underline **_
-                            _* italic underline*_ _*italic underline *_`;
+        const inlineText = '_ underline_ _underline _ * italic* *italic *\n'
+                            + '** bold** **bold **\n'
+                            + '*** bold italics*** ***bold italics ***\n'
+                            + '_*** bold italics underline***_ _***bold italics underline ***_\n'
+                            + '_** bold underline**_ _**bold underline **_\n'
+                            + '_* italic underline*_ _*italic underline *_';
 
         let actual = fountain.parse(inlineText).html.script;
         let expected = '<p>_ underline_ _underline _ * italic* *italic *<br />'
@@ -803,10 +804,9 @@ describe('Inline markdown lexer', () => {
 
         // Some select escapes of blocks to ensure the regexes are working
 
-        const escapedDialog = `\\@McCLANE
-                    Yippie ki-yay! Action!`;
+        const escapedDialog = '\t\\@McCLANE\nYippie ki-yay! Action!';
         actual = fountain.parse(escapedDialog).html.script;
-        expected = '<p>@McCLANE<br />Yippie ki-yay! Action!</p>';
+        expected = '<p>&nbsp;&nbsp;&nbsp;&nbsp;@McCLANE<br />Yippie ki-yay! Action!</p>';
         expect(actual).toBe(expected);
 
         const escapedHeading = '\\.OPENING TITLES';
@@ -841,9 +841,9 @@ describe('Inline markdown lexer', () => {
     });
 
     it('should not carry emphasis over line breaks per spec', () => {
-        const action = `Murtaugh, springing hell bent for leather -- and folks,
-                        grab your hats … because just then, a _BELL COBRA
-                        HELICOPTER_ crests the edge of the bluff.`;
+        const action = 'Murtaugh, springing hell bent for leather -- and folks,\n'
+                        + 'grab your hats … because just then, a _BELL COBRA\n'
+                        + 'HELICOPTER_ crests the edge of the bluff.';
 
         let actual = fountain.parse(action).html.script;
         let expected = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a _BELL COBRA<br />HELICOPTER_ crests the edge of the bluff.</p>'
@@ -870,10 +870,34 @@ describe('Additional compatibility tests', () => {
         fountain = new Fountain();
     });
 
+    it('should handle empty strings gracefully', () => {
+        const empty = '';
+        const one_empty_line = '    ';
+        const empty_lines = '    \n    ';
+        const many_empty_lines = `
+    
+    
+        `;
+
+        let actual = fountain.parse(empty).html.script;
+        let expected = '';
+
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(one_empty_line).html.script;
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(empty_lines).html.script;
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(many_empty_lines).html.script;
+        expect(actual).toBe(expected);
+    });
+
     it('should not mutate token text when converting to HTML', () => {
-        const action = `Murtaugh, *springing*, hell bent for leather -- and folks,
-                        grab your hats … because just then, a BELL COBRA
-                        HELICOPTER crests the edge of the bluff.`;
+        const action = 'Murtaugh, *springing*, hell bent for leather -- and folks,\n'
+                        + 'grab your hats … because just then, a BELL COBRA\n'
+                        + 'HELICOPTER crests the edge of the bluff.';
 
         let output = fountain.parse(action, true);
         let expectedTokens = [

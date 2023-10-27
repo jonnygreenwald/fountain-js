@@ -24,14 +24,28 @@ export class InlineLexer {
         escape: '$1'
     };
 
-    reconstruct(line: string) {
-        const styles = ['bold_italic_underline', 'bold_underline', 'italic_underline', 'bold_italic', 'bold', 'italic', 'underline'];
+    reconstruct(line: string, escapeSpaces = false) {
+        const styles = [
+            'bold_italic_underline',
+            'bold_underline',
+            'italic_underline',
+            'bold_italic',
+            'bold',
+            'italic',
+            'underline'
+        ];
 
         line = escapeHTML(
                 line
                     .replace(rules.note_inline, this.inline.note)
                     .replace(rules.escape, '[{{{$&}}}]')                    // perserve escaped characters
         );
+
+        if (escapeSpaces) {
+            line = line.replace(/^( +)/gm, (_, spaces) => {
+                return '&nbsp;'.repeat(spaces.length);
+            });
+        }
 
         for (let style of styles) {
             const rule: RegExp = rules[style];
@@ -44,6 +58,6 @@ export class InlineLexer {
         return line
                 .replace(/\n/g, this.inline.line_break)
                 .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)       // restore escaped chars to intended sequence
-                .trim();
+                .trimEnd();
     }
 }
