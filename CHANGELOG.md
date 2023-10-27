@@ -6,14 +6,28 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Improve rendering per spec like stripping sections and synopses since these should not be rendered.
-- Return more explicit null values and enable strict null checking.
 - Add line numbers to tokens.
 - Allow any title field attributes.
 - Better title page parsing in general.
+- Fix boneyard and notes parsing.
+- Work on options for perserving vertical space in Action per spec.
+
+## [1.2.0] - 2023-10-27
+
+### Added
+
+- Tabs and spaces retained in Action elements. Tabs are converted to four spaces.
+
+### Changed
+
+- Improve rendering per spec like stripping sections and synopses since these should not be rendered.
+- Return more explicit null values and enable strict null checking.
+- Better whitespace handling while lexing.
+
+### Fixed
+
 - Fix line break logic in dialogue.
-- Fix issue with empty strings returning `<p>undefined</p>`
-- Tabs and spaces retained in Action elements. Tabs are converted to four spaces
+- Fix issue with empty strings returning `<p>undefined</p>`.
 
 ## [1.1.4] - 2023-10-01
 
