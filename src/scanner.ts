@@ -1,7 +1,6 @@
 import { rules } from './rules';
 import { 
     ActionToken,
-    BoneyardToken,
     CenteredToken,
     DialogueBlock,
     LyricsToken,
@@ -19,10 +18,20 @@ import {
 export class Scanner {
     private lastLineWasDualDialogue: boolean;
 
+    boneyardStripper(match: string) {
+        const endAtStrStart = /^[^\S\n]*\*\//m;
+        let boneyardEnd = '';
+
+        if (endAtStrStart.test(match)) {
+            boneyardEnd = '\n\n';
+        }
+        return boneyardEnd;
+    }
+
     tokenize(script: string): Token[] {
         // reverse the array so that dual dialog can be constructed bottom up
         const source: string[] = script
-                            .replace(rules.boneyard, '\n$1\n')
+                            .replace(rules.boneyard, this.boneyardStripper)
                             .replace(/\r\n|\r/g, '\n')                      // convert carriage return / returns to newline
                             .split(rules.end_of_lines)
                             .reverse();
@@ -65,10 +74,6 @@ export class Scanner {
             /** notes */
             if (NoteToken.matchedBy(line)) {
                 return new NoteToken(line).addTo(previous);
-            }
-            /** boneyard */
-            if (BoneyardToken.matchedBy(line)) {
-                return new BoneyardToken(line).addTo(previous);
             }
             /** lyrics */
             if (LyricsToken.matchedBy(line)) {

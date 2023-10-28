@@ -356,26 +356,6 @@ export class NoteToken implements Token {
     }
 }
 
-export class BoneyardToken implements Token {
-    readonly type: 'boneyard_begin' | 'boneyard_end';
-    readonly text: string;
-
-    constructor(line: string) {
-        const match = line.match(rules.boneyard);
-        if (match) {
-            this.type = match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end';
-        }
-    }
-
-    addTo(tokens: Token[]): Token[] {
-        return [...tokens, this];
-    }
-
-    static matchedBy(line: string) {
-        return rules.boneyard.test(line);
-    }
-}
-
 export class PageBreakToken implements Token {
     readonly type = 'page_break';
 
