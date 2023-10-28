@@ -36,9 +36,7 @@ export class InlineLexer {
         ];
 
         line = escapeHTML(
-                line
-                    .replace(rules.note_inline, this.inline.note)
-                    .replace(rules.escape, '[{{{$&}}}]')                    // perserve escaped characters
+                line.replace(rules.escape, '[{{{$&}}}]')                    // perserve escaped characters
         );
 
         if (escapeSpaces) {
@@ -56,6 +54,7 @@ export class InlineLexer {
         }
 
         return line
+                .replace(rules.note_inline, this.inline.note)
                 .replace(/\n/g, this.inline.line_break)
                 .replace(/\[{{{\\(&.+?;|.)}}}]/g, this.inline.escape)       // restore escaped chars to intended sequence
                 .trimEnd();

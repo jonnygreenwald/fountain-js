@@ -418,11 +418,107 @@ describe('Fountain Markup Parser', () => {
     });
 
     it('should parse notes', () => {
-        const notes = '[[Add an additional beat here]]';
+        const notes = 'INT. TRAILER HOME - DAY\n\n'
+                    + 'This is the home of THE BOY BAND, AKA DAN and JACK[[Or did we think of actual names for these guys?]].'
+                    + ' They too are drinking beer, and counting the take from their last smash-and-grab.'
+                    + ' Money, drugs, and ridiculous props are strewn about the table.\n\n'
+                    + '[[It was supposed to be Vietnamese, right?]]\n\n'
+                    + 'JACK\n'
+                    + '(in Vietnamese, subtitled)\n'
+                    + '*Did you know Brick and Steel are retired?*';
 
         let actual = fountain.parse(notes).html.script;
-        let expected = '<!-- Add an additional beat here -->';
+        let expected = '<h3>INT. TRAILER HOME - DAY</h3>'
+                    + '<p>This is the home of THE BOY BAND, AKA DAN and JACK<!-- Or did we think of actual names for these guys? -->.'
+                    + ' They too are drinking beer, and counting the take from their last smash-and-grab.'
+                    + ' Money, drugs, and ridiculous props are strewn about the table.</p>'
+                    + '<!-- It was supposed to be Vietnamese, right? -->'
+                    + '<div class="dialogue"><h4>JACK</h4>'
+                    + '<p class="parenthetical">(in Vietnamese, subtitled)</p>'
+                    + '<p><span class="italic">Did you know Brick and Steel are retired?</span></p></div>';
 
+        expect(actual).toBe(expected);
+    });
+
+    it('should parse multiline notes', () => {
+        const notes = `His hand is an inch from the receiver when the phone RINGS. Scott pauses for a moment, suspicious for some reason.[[This section needs work.
+Either that, or I need coffee.
+  
+Definitely coffee.]] He looks around. Phone ringing.`
+
+        let actual = fountain.parse(notes).html.script;
+        let expected = '<p>His hand is an inch from the receiver when the phone RINGS. Scott pauses for a moment, suspicious for some reason.'
+                    + '<!-- This section needs work.<br />'
+                    + 'Either that, or I need coffee.<br />'
+                    + '&nbsp;&nbsp;<br />'
+                    + 'Definitely coffee. --> He looks around. Phone ringing.</p>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should strip the boneyard from the input before parsing', () => {
+        const boneyard = `      COGNITO
+    Everyone's coming after you mate! Scorpio, The Boy Band, Sparrow, Point Blank Sniper...
+
+As he rattles off the long list, Brick and Steel share a look. This is going to be BAD.
+
+        CUT TO:
+/*
+INT. GARAGE - DAY
+
+BRICK and STEEL get into Mom's PORSCHE, Steel at the wheel. They speed off. To destiny!
+
+CUT TO:
+*/
+EXT. PALATIAL MANSION - DAY
+
+An EXTREMELY HANDSOME MAN drinks a beer. Shirtless, unfortunately.`;
+
+        let actual = fountain.parse(boneyard).html.script;
+        let expected = '<div class="dialogue"><h4>COGNITO</h4>'
+                    + "<p>Everyone's coming after you mate! Scorpio, The Boy Band, Sparrow, Point Blank Sniper...</p></div>"
+                    + '<p>As he rattles off the long list, Brick and Steel share a look. This is going to be BAD.</p>'
+                    + '<h2>CUT TO:</h2>'
+                    + '<h3>EXT. PALATIAL MANSION - DAY</h3>'
+                    + '<p>An EXTREMELY HANDSOME MAN drinks a beer. Shirtless, unfortunately.</p>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should preserve continuity of tokens if boneyard crosses mutliple lines', () => {
+        const boneyardAcrossParag = 'An explosion of sound.../*\n'
+                        + 'As it rises like an avenging angel...\n'
+                        + 'Hovers, shattering the air with turbo-throb, sandblasting the hillside with a roto-wash of loose dirt,'
+                        + " tables, chairs, everything that's not nailed down...\n\n"
+                        + 'Screaming, chaos, frenzy.*/\n'
+                        + 'Three words that apply to this scene.';
+        const boneyardAcrossTokens = `      COGNITO
+    Everyone's coming after you mate! Scorpio, The Boy Band, Sparrow, Point Blank Sniper...
+
+As he rattles off the long list, Brick and Steel share a look. This is going to be BAD.
+
+        CUT TO:\t/*
+INT. GARAGE - DAY
+
+BRICK and STEEL get into Mom's PORSCHE, Steel at the wheel. They speed off. To destiny!
+
+CUT TO:
+*/      EXT. PALATIAL MANSION - DAY
+
+An EXTREMELY HANDSOME MAN drinks a beer. Shirtless, unfortunately.`
+
+        let actual = fountain.parse(boneyardAcrossParag).html.script;
+        let expected = '<p>An explosion of sound...<br />'
+                    + 'Three words that apply to this scene.</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(boneyardAcrossTokens).html.script;
+        expected = '<div class="dialogue"><h4>COGNITO</h4>'
+                    + "<p>Everyone's coming after you mate! Scorpio, The Boy Band, Sparrow, Point Blank Sniper...</p></div>"
+                    + '<p>As he rattles off the long list, Brick and Steel share a look. This is going to be BAD.</p>'
+                    + '<h2>CUT TO:</h2>'
+                    + '<h3>EXT. PALATIAL MANSION - DAY</h3>'
+                    + '<p>An EXTREMELY HANDSOME MAN drinks a beer. Shirtless, unfortunately.</p>';
         expect(actual).toBe(expected);
     });
 
@@ -842,11 +938,11 @@ describe('Inline markdown lexer', () => {
 
     it('should not carry emphasis over line breaks per spec', () => {
         const action = 'Murtaugh, springing hell bent for leather -- and folks,\n'
-                        + 'grab your hats … because just then, a _BELL COBRA\n'
+                        + 'grab your hats... because just then, a _BELL COBRA\n'
                         + 'HELICOPTER_ crests the edge of the bluff.';
 
         let actual = fountain.parse(action).html.script;
-        let expected = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats … because just then, a _BELL COBRA<br />HELICOPTER_ crests the edge of the bluff.</p>'
+        let expected = '<p>Murtaugh, springing hell bent for leather -- and folks,<br />grab your hats... because just then, a _BELL COBRA<br />HELICOPTER_ crests the edge of the bluff.</p>'
 
         expect(actual).toBe(expected);
     });
@@ -896,19 +992,19 @@ describe('Additional compatibility tests', () => {
 
     it('should not mutate token text when converting to HTML', () => {
         const action = 'Murtaugh, *springing*, hell bent for leather -- and folks,\n'
-                        + 'grab your hats … because just then, a BELL COBRA\n'
+                        + 'grab your hats... because just then, a BELL COBRA\n'
                         + 'HELICOPTER crests the edge of the bluff.';
 
         let output = fountain.parse(action, true);
         let expectedTokens = [
             new ActionToken(
                 'Murtaugh, *springing*, hell bent for leather -- and folks,\n'
-                + 'grab your hats … because just then, a BELL COBRA\n'
+                + 'grab your hats... because just then, a BELL COBRA\n'
                 + 'HELICOPTER crests the edge of the bluff.'
             )
         ] as Token[];
 
-        let expectedHTML = '<p>Murtaugh, <span class="italic">springing</span>, hell bent for leather -- and folks,<br />grab your hats … because just then, a BELL COBRA<br />HELICOPTER crests the edge of the bluff.</p>'
+        let expectedHTML = '<p>Murtaugh, <span class="italic">springing</span>, hell bent for leather -- and folks,<br />grab your hats... because just then, a BELL COBRA<br />HELICOPTER crests the edge of the bluff.</p>'
 
         expect(output.tokens).toEqual(expectedTokens);
         expect(output.html.script).toBe(expectedHTML);

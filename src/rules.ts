@@ -33,7 +33,7 @@ export const rules: Record<FountainTypes, RegExp> = {
 
     note: /^\[{2}(?!\[+)(.+)]{2}(?!\[+)$/,
     note_inline: /\[{2}(?!\[+)([\s\S]+?)]{2}(?!\[+)/g,
-    boneyard: /(^\/\*|^\*\/)$/g,
+    boneyard: /\/\*[\S\s]*?\*\//g,
 
     page_break: /^={3,}$/,
     line_break: /^ {2}$/,
