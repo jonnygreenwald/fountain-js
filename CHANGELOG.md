@@ -9,8 +9,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Add line numbers to tokens.
 - Allow any title field attributes.
 - Better title page parsing in general.
-- Fix boneyard and notes parsing.
+- Boneyard is preserved as a token instead of stripped form input.
 - Work on options for perserving vertical space in Action per spec.
+
+## [1.2.1] - 2023-10-28
+
+### Changed
+
+- Boneyard is stripped from input before parsing for now. Intention is to make this a token with version two.
+
+### Fixed
+
+- HTML comments are no longer accidentally escaped within the `InlineLexer`.
 
 ## [1.2.0] - 2023-10-27
 
