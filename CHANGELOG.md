@@ -6,11 +6,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Add line numbers to tokens.
-- Allow any title field attributes.
-- Better title page parsing in general.
+- Add line numbers and/or paragraph numbers to tokens.
 - Boneyard is preserved as a token instead of stripped form input.
 - Work on options for perserving vertical space in Action per spec.
+
+## [1.2.2] - 2023-10-28
+
+### Added
+
+- Allow any title field attributes that are found _underneath_ one of the following recommended attributes: `Title`, `Credit`, `Author/s`, `Source`, `Notes`, `Draft date`, `Date`, `Contact`, or `Copyright`.
+
+### Fixed
+
+- Better title page parsing in general.
 
 ## [1.2.1] - 2023-10-28
 
