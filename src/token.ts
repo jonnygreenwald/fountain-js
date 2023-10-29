@@ -22,7 +22,7 @@ export class TitlePageBlock implements Block {
 
     constructor(line: string) {
         const match = line
-                    .replace(rules.title_page, '\n$1')
+                    .replace(/^([^\n]+:)/gm, '\n$1')
                     .split(rules.end_of_lines)
                     .reverse();
         this.tokens = match.reduce(
@@ -45,9 +45,9 @@ export class TitlePageToken implements Token {
     readonly text: string;
 
     constructor(item: string) {
-        const pair = item.split(/\:\n*/);
-        this.type = pair[0].trim().toLowerCase().replace(' ', '_');
-        this.text = pair[1].replace(/^\s*/gm, '');
+        const [key, value] = item.split(/\:\n*/, 2);
+        this.type = key.trim().toLowerCase().replace(/ /g, '_');
+        this.text = value.replace(/^\s*/gm, '');
     }
 
     addTo(tokens: Token[]): Token[] {
