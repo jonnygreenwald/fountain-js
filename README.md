@@ -6,13 +6,7 @@ A simple parser for [Fountain](http://fountain.io/), a markup language for forma
 
 Special thanks to [Nathan Hoad](https://www.npmjs.com/~nathanhoad) for the Fountain-js package namespace.
 
-## Syntax Support
-
 Supports up to `v 1.1` of the [Fountain syntax](https://www.fountain.io/syntax#section-changes).
-
-Currently Fountain-js supports a limited range of key-value pairs for title pages -
-
-* `Title`, `Credit`, `Author/s`, `Source`, `Notes`, `Draft date`, `Date`, `Contact`, `Copyright`
 
 ## Install
 
