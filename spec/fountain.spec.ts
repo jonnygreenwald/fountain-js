@@ -161,20 +161,28 @@ describe('Fountain Markup Parser', () => {
     it('should parse a scene number', () => {
         const numHeaindg = 'INT. HOUSE - DAY #1#';
         const alphaHeading = 'I/E HOUSE - DAY #A#';
+        const dashHeading = 'INT. HOUSE - DAY #I-1-A#';
+        const periodHeading = 'I./E HOUSE - DAY #1.#';
         const alphaNumHeading = 'INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#';
 
-        let numToken = fountain.parse(numHeaindg, true).tokens;
-        let alphaToken = fountain.parse(alphaHeading, true).tokens;
-        let alphaNumToken = fountain.parse(alphaNumHeading, true).tokens;
+        let actual = fountain.parse(numHeaindg).html.script;
+        let expected = '<h3 id="1">INT. HOUSE - DAY</h3>';
+        expect(actual).toBe(expected);
 
-        expect(numToken).toEqual([ new SceneHeadingToken('INT. HOUSE - DAY #1#') ]);
-        expect(alphaToken).toEqual([ new SceneHeadingToken('I/E HOUSE - DAY #A#') ]);
-        expect(alphaNumToken).toEqual([ 
-            new SceneHeadingToken('INT/EXT. HOUSE - DAY - FLASHBACK (1944) #110.A#')
-        ]);
+        actual = fountain.parse(alphaHeading).html.script;
+        expected = '<h3 id="A">I/E HOUSE - DAY</h3>';
+        expect(actual).toBe(expected);
 
-        let actual = fountain.parse(alphaNumHeading).html.script;
-        let expected = '<h3 id="110.A">INT/EXT. HOUSE - DAY - FLASHBACK (1944)</h3>';
+        actual = fountain.parse(dashHeading).html.script;
+        expected = '<h3 id="I-1-A">INT. HOUSE - DAY</h3>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(periodHeading).html.script;
+        expected = '<h3 id="1.">I./E HOUSE - DAY</h3>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(alphaNumHeading).html.script;
+        expected = '<h3 id="110.A">INT/EXT. HOUSE - DAY - FLASHBACK (1944)</h3>';
         expect(actual).toBe(expected);
     });
 
@@ -1006,6 +1014,39 @@ describe('Additional compatibility tests', () => {
         expect(actual).toBe(expected);
 
         actual = fountain.parse(many_empty_lines).html.script;
+        expect(actual).toBe(expected);
+    });
+
+    it('should turn hanging non-tokenized lines off of token lines into action', () => {
+        const trailingHeading = '.OPENING TITLES\ntrailing action';
+        const trailingTransition = 'CUT TO:\ntrailing action';
+        const trailingCentered = '> BRICK & STEEL <\n> FULL RETIRED <\ntrailing action';
+        const trailingLyrics = '~Willy Wonka!\ntrailing action';
+        const trialingSection = '# ACT I\ntrailing action';
+        const trailingSynopsis = '= Set up the characters and the story.\ntrailing action';
+
+        let actual = fountain.parse(trailingHeading).html.script;
+        let expected = '<p>.OPENING TITLES<br />trailing action</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(trailingTransition).html.script;
+        expected = '<p>CUT TO:<br />trailing action</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(trailingCentered).html.script;
+        expected = '<p>&gt; BRICK &amp; STEEL &lt;<br />&gt; FULL RETIRED &lt;<br />trailing action</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(trailingLyrics).html.script;
+        expected = '<p>~Willy Wonka!<br />trailing action</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(trialingSection).html.script;
+        expected = '<p># ACT I<br />trailing action</p>';
+        expect(actual).toBe(expected);
+
+        actual = fountain.parse(trailingSynopsis).html.script;
+        expected = '<p>= Set up the characters and the story.<br />trailing action</p>';
         expect(actual).toBe(expected);
     });
 

@@ -15,21 +15,21 @@ export type FountainTypes = 'title_page' | 'scene_heading'
 export const rules: Record<FountainTypes, RegExp> = {
     title_page: /^\s*((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
 
-    scene_heading: /^\s*((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+)|^\s*\.(?!\.+)(\S.*)/i,
-    scene_number: /( *#(.+)# *)/,
+    scene_heading: /^\s*((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+$)|^\s*\.(?!\.+)(\S.*)$/i,
+    scene_number: /\s*#([\w.-]+?)#\s*$/,
 
-    transition: /^\s*((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:)\s*$|^\s*> *(.+)$/,
+    transition: /^\s*((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:)[^\S\n]*$|^\s*> *(.+)$/,
 
-    dialogue: /(?!^\s*\\@|^\s*!)(?!^\s*[0-9 _*]+(?:\(.*\))?[*_]*(?:\^?)?\s*\n)(^\s*(?:@[^^()\n]+|[^^()\na-z]+)(?: *\(.*\))?[ *_]*)(\^?)?\s*\n(?!\n+)([\s\S]+)/,
+    dialogue: /(?!^\s*\\@|^\s*[!.>~=#])(?!^\s*[0-9 _*]+(?:\(.*\))?[*_]*(?:\^?)?\s*\n)(^\s*(?:@[^^()\n]+|[^^()\na-z]+(?<!(?:BLACK|OUT)\.|TO:\s*))(?:\(.*\))?[ *_]*)(\^?)?\s*\n(?!\n+)([\s\S]+)/,
     parenthetical: /^ *(?:(?<u1>_{0,1})(?<s1>\*{0,3})(?=.+\k<s1>\k<u1>)|(?<s2>\*{0,3})(?<u2>_{0,1})(?=.+\k<u2>\k<s2>))(\(.+?\))(\k<s1>\k<u1>|\k<u2>\k<s2>) *$/,
 
     action: /^(.+)/g,
-    centered: /^\s*>.+<[^\S\r\n]*(?:\s*>.+<[^\S\r\n]*)*/g,
+    centered: /^\s*>.+<[^\S\r\n]*(?:\s*>.+<[^\S\r\n]*)*$/,
 
-    lyrics: /^\s*~(?! ).+(?:\n\s*~(?! ).+)*/,
+    lyrics: /^\s*~(?! ).+(?:\n\s*~(?! ).+)*$/,
 
-    section: /^\s*(#+) *(.*)/,
-    synopsis: /^\s*=(?!=+) *(.*)/,
+    section: /^\s*(#+) *(.*)$/,
+    synopsis: /^\s*=(?!=+) *(.*)$/,
 
     note: /^\[{2}(?!\[+)(.+)]{2}(?!\[+)$/,
     note_inline: /\[{2}(?!\[+)([\s\S]+?)]{2}(?!\[+)/g,
@@ -50,5 +50,5 @@ export const rules: Record<FountainTypes, RegExp> = {
     escape: /\\([@#!*_$~`+=.><\\\/])/g,
 
     blank_line: /^(?: *(?:\n|$))+/,
-    end_of_lines: /(?:\n|$){2,}/g
+    end_of_lines: /\n(?:(?:[^\S \n]+[^\S\n]*| {3,}[^\S\n]*|^)(?:\n|$))+/gm
 };

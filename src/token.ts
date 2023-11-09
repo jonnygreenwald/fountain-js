@@ -63,12 +63,12 @@ export class SceneHeadingToken implements Token {
     constructor(line: string) {
         const match = line.match(rules.scene_heading);
         if (match) {
-            this.text = match[1] || match[2];
+            this.text = (match[1] || match[2]).trim();
         }
 
         const meta = this.text.match(rules.scene_number);
         if (meta) {
-            this.scene_number = meta[2];
+            this.scene_number = meta[1];
             this.text = this.text.replace(rules.scene_number, '');
         }
     }
@@ -109,7 +109,7 @@ export class TransitionToken implements Token {
     constructor(line: string) {
         const match = line.match(rules.transition);
         if (match) {
-            this.text = match[1] || match[2];
+            this.text = (match[1] || match[2]).trim();
         }
     }
 
@@ -385,7 +385,8 @@ export class ActionToken implements Token {
     readonly text: string;
 
     constructor(line: string) {
-        this.text = line.replace(/^(\s*)!(?! )/gm, '$1')
+        this.text = line
+                .replace(/^(\s*)!(?! )/gm, '$1')
                 .replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
                     return leading + '    '.repeat(tabs.length);
                 });
