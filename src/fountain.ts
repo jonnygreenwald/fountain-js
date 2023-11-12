@@ -1,27 +1,18 @@
 import { Token } from './token';
-
-import { Scanner } from './scanner';
-import { InlineLexer } from './lexer';
+import { Lexer, InlineLexer } from './lexer';
 import { unEscapeHTML } from './utilities';
 
 export interface Script {
-    title: string,
+    title: string;
     html: {
         title_page: string,
         script: string
-    },
-    tokens: Token[]
+    };
+    tokens: Token[];
 }
 
 export class Fountain {
     tokens: Token[];
-    private scanner: Scanner;
-    private inlineLex: InlineLexer;
-
-    constructor() {
-        this.scanner = new Scanner;
-        this.inlineLex = new InlineLexer;
-    }
 
     parse(script: string, getTokens?: boolean): Script {
         // throw an error if given script source isn't a string
@@ -35,13 +26,14 @@ export class Fountain {
         try {
             let title: string = '';
 
-            this.tokens = this.scanner.tokenize(script);
+            const [titlePageTokens, scriptTokens] = Lexer.tokenize(script);
+            this.tokens = titlePageTokens.concat(scriptTokens);
 
-            const titleToken = this.tokens.find(token => token.type === 'title');
+            const titleToken = titlePageTokens.find(token => token.type === 'title');
             if (titleToken?.text) {
                 // lexes any inlines on the title then removes any HTML / line breaks
                 title = unEscapeHTML(
-                            this.inlineLex.reconstruct(titleToken.text)
+                            InlineLexer.reconstruct(titleToken.text)
                                 .replace('<br />', ' ')
                                 .replace(/<(?:.|\n)*?>/g, '')
                 );
@@ -50,10 +42,10 @@ export class Fountain {
             return {
                 title,
                 html: {
-                    title_page: this.tokens.filter(token => token.is_title)
-                                    .map(token => this.to_html(token)).join(''),
-                    script: this.tokens.filter(token => !token.is_title)
-                                    .map(token => this.to_html(token)).join('')
+                    title_page: titlePageTokens
+                                .map(token => this.to_html(token)).join(''),
+                    script: scriptTokens
+                                .map(token => this.to_html(token)).join('')
                 },
                 tokens: getTokens ? this.tokens : []
             }
@@ -68,20 +60,22 @@ export class Fountain {
         let lexedText = '';
 
         if (token?.text) {
-            lexedText = this.inlineLex.reconstruct(token.text, token.type === 'action');
+            lexedText = InlineLexer
+                            .reconstruct(token.text, token.type === 'action');
         }
 
         switch (token.type) {
             case 'title': return `<h1>${lexedText}</h1>`;
-            case 'credit': return `<p class="credit">${lexedText}</p>`;
-            case 'author': return `<p class="authors">${lexedText}</p>`;
+            case 'author':
             case 'authors': return `<p class="authors">${lexedText}</p>`;
-            case 'source': return `<p class="source">${lexedText}</p>`;
-            case 'notes': return `<p class="notes">${lexedText}</p>`;
-            case 'draft_date': return `<p class="draft-date">${lexedText}</p>`;
-            case 'date': return `<p class="date">${lexedText}</p>`;
-            case 'contact': return `<p class="contact">${lexedText}</p>`;
-            case 'copyright': return `<p class="copyright">${lexedText}</p>`;
+            case 'contact':
+            case 'copyright':
+            case 'credit':
+            case 'date':
+            case 'draft_date':
+            case 'notes':
+            case 'revision':
+            case 'source': return `<p class="${token.type.replace(/_/g, '-')}">${lexedText}</p>`;
 
             case 'scene_heading': return `<h3${(token.scene_number ? ` id="${token.scene_number}">` : `>`) + lexedText}</h3>`;
             case 'transition': return `<h2>${lexedText}</h2>`;

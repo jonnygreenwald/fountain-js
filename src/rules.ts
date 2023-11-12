@@ -10,10 +10,10 @@ export type FountainTypes = 'title_page' | 'scene_heading'
                 | 'italic_underline' | 'bold_italic'
                 | 'bold' | 'italic'
                 | 'underline' | 'escape'
-                | 'blank_line' | 'end_of_lines';
+                | 'blank_lines';
 
 export const rules: Record<FountainTypes, RegExp> = {
-    title_page: /^\s*((?:title|credit|authors?|source|notes|draft date|date|contact|copyright)\:)/gim,
+    title_page: /^\s*((?:title|credit|authors?|source|notes|draft ?date|date|contact|copyright|revisions?)\:)(?=[^\S\n]*(?:\n(?: {3,}|\t))?\S.*)/i,
 
     scene_heading: /^\s*((?:\*{0,3}_?)?(?:(?:int|i)\.?\/(?:ext|e)|int|ext|est)[. ].+$)|^\s*\.(?!\.+)(\S.*)$/i,
     scene_number: /\s*#([\w.-]+?)#\s*$/,
@@ -49,6 +49,5 @@ export const rules: Record<FountainTypes, RegExp> = {
 
     escape: /\\([@#!*_$~`+=.><\\\/])/g,
 
-    blank_line: /^(?: *(?:\n|$))+/,
-    end_of_lines: /\n(?:(?:[^\S \n]+[^\S\n]*| {3,}[^\S\n]*|^)(?:\n|$))+/gm
+    blank_lines: /\n(?:(?! {2}\n)(?:[^\S\n]*| {3,}[^\S\n]*)(?:\n|$))+|^(?! {2}\n)[^\S\n]*(?:\n|$)/g
 };
