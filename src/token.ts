@@ -8,7 +8,7 @@ export interface Token {
     dual?: string;
     depth?: number;
 
-    addTo(tokens: Token[]): Token[]
+    addTo(tokens: Token[]): Token[];
 }
 
 export interface Block {

@@ -1,6 +1,6 @@
 {
   "name": "fountain-js",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A simple parser for Fountain, a markup language for formatting screenplays.",
   "main": "dist/index.js",
   "module": "dist.esm/index.js",

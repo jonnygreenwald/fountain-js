@@ -49,5 +49,5 @@ export const rules: Record<FountainTypes, RegExp> = {
 
     escape: /\\([@#!*_$~`+=.><\\\/])/g,
 
-    blank_lines: /\n(?:(?! {2}\n)(?:[^\S\n]*| {3,}[^\S\n]*)(?:\n|$))+|^(?! {2}\n)[^\S\n]*(?:\n|$)/g
+    blank_lines: /\n(?:(?! {2}\n)(?:[^\S\n]*| {3,}[^\S\n]*)(?:\n|$))+|^[^\S\n]*(?:\n|$)/g
 };
