@@ -10,6 +10,26 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Boneyard is preserved as a token instead of stripped form input.
 - Work on options for perserving vertical space in Action per spec.
 
+## [1.2.3] - 2023-11-13
+
+### Added
+
+- Keyword `Revision(s)` is now a recognized title page keyword.
+
+### Fixed
+
+- Fixed issue with `end_of_lines` rule not splitting properly when new lines have horizontal whitespace.
+- Title page is only recognized at the beginning of script (leading whitespace is ignored), any other title pages after the start becomes action as per Fountain specification.
+- Fixed longstanding issue (even from the original version) where any additional lines after certain tokens like scene headings, for example `EXT. BRICK'S GARAGE - DAY\nTrailing action...`, is consumed and lost by the lexer. Now both token and additional lines fall to action instead since these specific tokens require newliens after them to be valid.
+
+### Changed
+
+- Rule `end_of_lines` is now `blank_lines`.
+- `Scanner` class is now `Lexer` and is importable.
+- `Lexer` and `InlineLexer` classes are now static.
+- `tokenize` method in `Lexer` class now returns a tuple composed title page tokens and script tokens for quicker access, no need to filter by `is_title` anymore.
+  - `Fountain` class property `tokens` still presents all tokens in a single array as before (no changes). One can still filter by `is_title` as desired as previously.
+
 ## [1.2.2] - 2023-10-28
 
 ### Added
