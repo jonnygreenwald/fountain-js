@@ -38,10 +38,10 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/jasmine": "^4.0.3",
-    "jasmine": "^4.1.0",
-    "rimraf": "^3.0.2",
+    "@types/jasmine": "^5.1.2",
+    "jasmine": "^5.1.0",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.7.0",
-    "typescript": "^3.9.5"
+    "typescript": "^5.2.2"
   }
 }

@@ -16,6 +16,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Fixed a bug where if a key-value pair within the title page block is invalid, it would throw it into a endless loop. Now the remainder of the block falls to action until the block is corrected.
 - Fixed another bug where a colon (`:`) within the value portion of the tile page key-value pair would be truncated after the colon.
+- Upgraded to Typscript `^5.0` to avoid breaking changes with `@types/node`.
 
 ## [1.2.3] - 2023-11-13
 
