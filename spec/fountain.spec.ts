@@ -122,6 +122,33 @@ describe('Fountain Markup Parser', () => {
         expect(output.tokens).toEqual(expectedTitleTokens);
     });
 
+    it('should allow additional colons in title page key-value pair', () => {
+        const colonValue = `Title: Big Fish
+                            Credit: written by
+                            Author: John August
+                            Copyright: (c) 2003: Columbia Pictures`;
+
+        let actual = fountain.parse(colonValue).html.title_page;
+        let expected = '<h1>Big Fish</h1><p class="credit">written by</p>'
+                    + '<p class="authors">John August</p>'
+                    + '<p class="copyright">(c) 2003: Columbia Pictures</p>';
+
+        expect(actual).toBe(expected);
+    });
+
+    it('should fall to action if title page key-value pairs are invalid', () => {
+        const invalidKeyPairs = 'Title: Big Fish\nCredit:\nAuthor: John August';
+
+        let output = fountain.parse(invalidKeyPairs);
+        let actual = output.html.title_page;
+        let expected = '<h1>Big Fish</h1>';
+        expect(actual).toBe(expected);
+
+        actual = output.html.script;
+        expected = '<p>Credit:<br />Author: John August</p>';
+        expect(actual).toBe(expected);
+    });
+
     it('should parse a scene heading', () => {
         const sceneHeading = "EXT. BRICK'S PATIO - DAY";
 

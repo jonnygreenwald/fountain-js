@@ -10,6 +10,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Boneyard is preserved as a token instead of stripped form input.
 - Work on options for perserving vertical space in Action per spec.
 
+## [1.2.4] - 2023-11-13
+
+### Fixed
+
+- Fixed a bug where if a key-value pair within the title page block is invalid, it would throw it into a endless loop. Now the remainder of the block falls to action until the block is corrected.
+- Fixed another bug where a colon (`:`) within the value portion of the tile page key-value pair would be truncated after the colon.
+
 ## [1.2.3] - 2023-11-13
 
 ### Added
@@ -20,7 +27,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Fixed issue with `end_of_lines` rule not splitting properly when new lines have horizontal whitespace.
 - Title page is only recognized at the beginning of script (leading whitespace is ignored), any other title pages after the start becomes action as per Fountain specification.
-- Fixed longstanding issue (even from the original version) where any additional lines after certain tokens like scene headings, for example `EXT. BRICK'S GARAGE - DAY\nTrailing action...`, is consumed and lost by the lexer. Now both token and additional lines fall to action instead since these specific tokens require newliens after them to be valid.
+- Fixed longstanding issue (even from the original version) where any additional lines after certain tokens like scene headings, for example `EXT. BRICK'S GARAGE - DAY\nTrailing action...`, is consumed and lost by the lexer. Now both token and additional lines fall to action instead since these specific tokens require newlines after them to be valid.
 
 ### Changed
 

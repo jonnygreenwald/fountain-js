@@ -38,6 +38,9 @@ export class TitlePageBlock implements Block {
                     this.tokens = new TitlePageToken(pair[0]).addTo(this.tokens);
                     titlePageData = titlePageData.substring(pair[0].length);
                     scanPosition += pair[0].length;
+                } else {
+                    this.scanIndex = scanPosition;
+                    break;
                 }
             }
         }
@@ -58,7 +61,7 @@ export class TitlePageToken implements Token {
     readonly text: string;
 
     constructor(pair: string) {
-        const [key, delimeter, value] = pair.split(/(\:[^\S\n]*\n?)/, 3);
+        const [key, delimeter, value] = pair.split(/(\:[^\S\n]*\n?)([\S\s]*)/, 3);
         this.type = key.trim().toLowerCase().replace(/ /g, '_');
         this.text = value.replace(/^\s*|\s*$/gm, '');
     }
